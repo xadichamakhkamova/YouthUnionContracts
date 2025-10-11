@@ -6,8 +6,8 @@ service UserService {
     rpc CreateUser (CreateUserRequest) returns (User);
     rpc GetUserById (GetUserByIdRequest) returns (User);
     rpc UpdateUser (UpdateUserRequest) returns (User);
-    rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse);
     rpc ListUsers (ListUsersRequest) returns (UserList);
+    rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse);
     rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse);
 
     // Role Types CRUD (Admin tomonidan)
