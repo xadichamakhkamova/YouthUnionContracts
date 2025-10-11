@@ -28,6 +28,12 @@ service UserSessionService {
     rpc GetSessionByToken (GetSessionByTokenRequest) returns (UserSession);
 }
 
+enum Gender {
+    GENDER_UNSPECIFIED = 0; // default qiymat
+    MALE = 1;
+    FEMALE = 2;
+}
+
 message User {
     string id = 1;
     int32 identifier = 2;                     // 5 xonali login ID
@@ -38,7 +44,7 @@ message User {
     string faculty = 7;
     int32 course = 8;
     string birth_date = 9;                    // YYYY-MM-DD formatda
-    string gender = 10;                       // MALE / FEMALE
+    Gender gender = 10;                       // MALE / FEMALE
     string created_at = 11;
     string updated_at = 12;
 }
@@ -60,7 +66,7 @@ message CreateUserRequest {
     string faculty = 6;
     int32 course = 7;
     string birth_date = 8;
-    string gender = 9;
+    Gender gender = 9;
 }
 
 message UpdateUserRequest {
@@ -71,7 +77,7 @@ message UpdateUserRequest {
     string faculty = 5;
     int32 course = 6;
     string birth_date = 7;
-    string gender = 8;
+    Gender gender = 8;
 }
 
 message ChangePasswordRequest {
