@@ -1,0 +1,194 @@
+syntax="proto3";
+
+option go_package = "./genproto/userpb";
+
+service UserService {
+    rpc CreateUser (CreateUserRequest) returns (User);
+    rpc GetUserById (GetUserByIdRequest) returns (User);
+    rpc UpdateUser (UpdateUserRequest) returns (User);
+    rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse);
+    rpc ListUsers (ListUsersRequest) returns (UserList);
+    rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse);
+
+    // Role Types CRUD (Admin tomonidan)
+    rpc CreateRole (CreateRoleRequest) returns (RoleType);
+    rpc GetRoleById (GetRoleByIdRequest) returns (RoleType);
+    rpc UpdateRole (UpdateRoleRequest) returns (RoleType);
+    rpc DeleteRole (DeleteRoleRequest) returns (DeleteRoleResponse);
+    rpc ListRoles (ListRolesRequest) returns (RoleTypeList);
+
+    // User Roles CRUD (Admin tomonidan)
+    rpc AssignRoleToUser (AssignRoleRequest) returns (UserRole);
+    rpc RemoveRoleFromUser (RemoveRoleRequest) returns (RemoveRoleResponse);
+    rpc ListUserRoles (ListUserRolesRequest) returns (UserRoleList);
+}
+  
+service UserSessionService {
+    rpc CreateSession (CreateSessionRequest) returns (UserSession);
+    rpc GetSessionByToken (GetSessionByTokenRequest) returns (UserSession);
+}
+
+message User {
+    string id = 1;
+    int32 identifier = 2;                     // 5 xonali login ID
+    string first_name = 3;
+    string last_name = 4;
+    string phone_number = 5;
+    string password_hash = 6;
+    string faculty = 7;
+    int32 course = 8;
+    string birth_date = 9;                    // YYYY-MM-DD formatda
+    string gender = 10;                       // MALE / FEMALE
+    string created_at = 11;
+    string updated_at = 12;
+}
+
+message UserSession {
+    string id = 1;
+    string user_id = 2;
+    string refresh_token = 3;
+    string expires_at = 4;
+    string created_at = 5;
+}
+  
+message CreateUserRequest {
+    int32 identifier = 1;
+    string first_name = 2;
+    string last_name = 3;
+    string phone_number = 4;
+    string password_hash = 5;
+    string faculty = 6;
+    int32 course = 7;
+    string birth_date = 8;
+    string gender = 9;
+}
+
+message UpdateUserRequest {
+    string id = 1;
+    string first_name = 2;
+    string last_name = 3;
+    string phone_number = 4;
+    string faculty = 5;
+    int32 course = 6;
+    string birth_date = 7;
+    string gender = 8;
+}
+
+message ChangePasswordRequest {
+    string user_id = 1;
+    string old_password = 2;
+    string new_password = 3;
+}
+
+message ChangePasswordResponse {
+    string message = 1;          
+    string updated_at = 2;      
+}
+
+message GetUserByIdRequest {
+    string id = 1;
+}
+
+message ListUsersRequest {
+    int32 page = 1;
+    int32 limit = 2;
+}
+
+message UserList {
+    repeated User users = 1;
+    int32 total_count = 2;
+}
+
+message DeleteUserRequest {
+    string id = 1;
+}
+
+message DeleteUserResponse {
+    string message = 1;     
+    string deleted_user_id = 2; 
+    string deleted_at = 3;  
+}
+
+// User Session Service
+message CreateSessionRequest {
+    string user_id = 1;
+    string refresh_token = 2;
+    string expires_at = 3;
+}
+  
+message GetSessionByTokenRequest {
+    string refresh_token = 1;
+}
+
+message RoleType {
+    string id = 1;
+    string name = 2;          // ADMIN, ORGANIZER, STUDENT
+    string description = 3;
+    string created_at = 4;
+    string updated_at = 5;
+}
+
+message CreateRoleRequest {
+    string name = 1;
+    string description = 2;
+}
+
+message UpdateRoleRequest {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+}
+
+message GetRoleByIdRequest {
+    string id = 1;
+}
+
+message DeleteRoleRequest {
+    string id = 1;
+}
+
+message DeleteRoleResponse {
+    string message = 1;
+    string deleted_role_id = 2;
+    string deleted_at = 3;
+}
+
+message ListRolesRequest {
+    int32 page = 1;
+    int32 limit = 2;
+}
+
+message RoleTypeList {
+    repeated RoleType roles = 1;
+    int32 total_count = 2;
+}
+
+message UserRole {
+    string id = 1;
+    string user_id = 2;
+    string role_id = 3;
+    string assigned_at = 4;
+}
+
+message AssignRoleRequest {
+    string user_id = 1;
+    string role_id = 2;
+}
+
+message RemoveRoleRequest {
+    string id = 1;
+}
+
+message RemoveRoleResponse {
+    string message = 1;
+    string removed_role_id = 2;
+    string removed_at = 3;
+}
+
+message ListUserRolesRequest {
+    string user_id = 1;
+}
+
+message UserRoleList {
+    repeated UserRole user_roles = 1;
+}
