@@ -193,8 +193,11 @@ message RemoveRoleResponse {
 
 message ListUserRolesRequest {
     string user_id = 1;
+    int32 page = 2;
+    int32 limit = 3;
 }
 
 message UserRoleList {
     repeated UserRole user_roles = 1;
+    int32 total_count = 2;
 }
