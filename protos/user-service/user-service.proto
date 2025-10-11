@@ -3,7 +3,7 @@ syntax="proto3";
 option go_package = "./genproto/userpb";
 
 service UserService {
-    rpc RegisterUser (RegisterUserRequest) returns (User);
+    rpc CreateUser (CreateUserRequest) returns (User);
     rpc GetUserById (GetUserByIdRequest) returns (User);
     rpc UpdateUser (UpdateUserRequest) returns (User);
     rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse);
@@ -57,7 +57,7 @@ message UserSession {
     string created_at = 5;
 }
   
-message RegisterUserRequest {
+message CreateUserRequest {
     int32 identifier = 1;
     string first_name = 2;
     string last_name = 3;
