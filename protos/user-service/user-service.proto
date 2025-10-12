@@ -40,13 +40,12 @@ message User {
     string first_name = 3;
     string last_name = 4;
     string phone_number = 5;
-    string password_hash = 6;
-    string faculty = 7;
-    int32 course = 8;
-    string birth_date = 9;                    // YYYY-MM-DD formatda
-    Gender gender = 10;                       // MALE / FEMALE
-    string created_at = 11;
-    string updated_at = 12;
+    string faculty = 6;
+    int32 course = 7;
+    string birth_date = 8;                    // YYYY-MM-DD formatda
+    Gender gender = 9;                       // MALE / FEMALE
+    string created_at = 10;
+    string updated_at = 11;
 }
 
 message UserSession {
