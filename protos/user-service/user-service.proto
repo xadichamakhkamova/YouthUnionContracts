@@ -4,7 +4,7 @@ option go_package = "./genproto/userpb";
 
 service UserService {
     rpc CreateUser (CreateUserRequest) returns (User);
-    rpc GetUserByIdentifier(GetUserByIdentifierRequest) returns (User);
+    rpc GetUserByIdentifier(GetUserByIdentifierRequest) returns (GetUserByIdentifierResponse);
     rpc GetUserById (GetUserByIdRequest) returns (User);
     rpc UpdateUser (UpdateUserRequest) returns (User);
     rpc ListUsers (ListUsersRequest) returns (UserList);
