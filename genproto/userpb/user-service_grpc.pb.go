@@ -19,20 +19,21 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	UserService_CreateUser_FullMethodName         = "/UserService/CreateUser"
-	UserService_GetUserById_FullMethodName        = "/UserService/GetUserById"
-	UserService_UpdateUser_FullMethodName         = "/UserService/UpdateUser"
-	UserService_ListUsers_FullMethodName          = "/UserService/ListUsers"
-	UserService_DeleteUser_FullMethodName         = "/UserService/DeleteUser"
-	UserService_ChangePassword_FullMethodName     = "/UserService/ChangePassword"
-	UserService_CreateRole_FullMethodName         = "/UserService/CreateRole"
-	UserService_GetRoleById_FullMethodName        = "/UserService/GetRoleById"
-	UserService_UpdateRole_FullMethodName         = "/UserService/UpdateRole"
-	UserService_DeleteRole_FullMethodName         = "/UserService/DeleteRole"
-	UserService_ListRoles_FullMethodName          = "/UserService/ListRoles"
-	UserService_AssignRoleToUser_FullMethodName   = "/UserService/AssignRoleToUser"
-	UserService_RemoveRoleFromUser_FullMethodName = "/UserService/RemoveRoleFromUser"
-	UserService_ListUserRoles_FullMethodName      = "/UserService/ListUserRoles"
+	UserService_CreateUser_FullMethodName          = "/UserService/CreateUser"
+	UserService_GetUserByIdentifier_FullMethodName = "/UserService/GetUserByIdentifier"
+	UserService_GetUserById_FullMethodName         = "/UserService/GetUserById"
+	UserService_UpdateUser_FullMethodName          = "/UserService/UpdateUser"
+	UserService_ListUsers_FullMethodName           = "/UserService/ListUsers"
+	UserService_DeleteUser_FullMethodName          = "/UserService/DeleteUser"
+	UserService_ChangePassword_FullMethodName      = "/UserService/ChangePassword"
+	UserService_CreateRole_FullMethodName          = "/UserService/CreateRole"
+	UserService_GetRoleById_FullMethodName         = "/UserService/GetRoleById"
+	UserService_UpdateRole_FullMethodName          = "/UserService/UpdateRole"
+	UserService_DeleteRole_FullMethodName          = "/UserService/DeleteRole"
+	UserService_ListRoles_FullMethodName           = "/UserService/ListRoles"
+	UserService_AssignRoleToUser_FullMethodName    = "/UserService/AssignRoleToUser"
+	UserService_RemoveRoleFromUser_FullMethodName  = "/UserService/RemoveRoleFromUser"
+	UserService_ListUserRoles_FullMethodName       = "/UserService/ListUserRoles"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -40,6 +41,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*User, error)
+	GetUserByIdentifier(ctx context.Context, in *GetUserByIdentifierRequest, opts ...grpc.CallOption) (*User, error)
 	GetUserById(ctx context.Context, in *GetUserByIdRequest, opts ...grpc.CallOption) (*User, error)
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*User, error)
 	ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*UserList, error)
@@ -69,6 +71,16 @@ func (c *userServiceClient) CreateUser(ctx context.Context, in *CreateUserReques
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(User)
 	err := c.cc.Invoke(ctx, UserService_CreateUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) GetUserByIdentifier(ctx context.Context, in *GetUserByIdentifierRequest, opts ...grpc.CallOption) (*User, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(User)
+	err := c.cc.Invoke(ctx, UserService_GetUserByIdentifier_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -210,6 +222,7 @@ func (c *userServiceClient) ListUserRoles(ctx context.Context, in *ListUserRoles
 // for forward compatibility
 type UserServiceServer interface {
 	CreateUser(context.Context, *CreateUserRequest) (*User, error)
+	GetUserByIdentifier(context.Context, *GetUserByIdentifierRequest) (*User, error)
 	GetUserById(context.Context, *GetUserByIdRequest) (*User, error)
 	UpdateUser(context.Context, *UpdateUserRequest) (*User, error)
 	ListUsers(context.Context, *ListUsersRequest) (*UserList, error)
@@ -234,6 +247,9 @@ type UnimplementedUserServiceServer struct {
 
 func (UnimplementedUserServiceServer) CreateUser(context.Context, *CreateUserRequest) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
+}
+func (UnimplementedUserServiceServer) GetUserByIdentifier(context.Context, *GetUserByIdentifierRequest) (*User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserByIdentifier not implemented")
 }
 func (UnimplementedUserServiceServer) GetUserById(context.Context, *GetUserByIdRequest) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserById not implemented")
@@ -301,6 +317,24 @@ func _UserService_CreateUser_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).CreateUser(ctx, req.(*CreateUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_GetUserByIdentifier_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserByIdentifierRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GetUserByIdentifier(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_GetUserByIdentifier_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GetUserByIdentifier(ctx, req.(*GetUserByIdentifierRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -549,6 +583,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateUser",
 			Handler:    _UserService_CreateUser_Handler,
+		},
+		{
+			MethodName: "GetUserByIdentifier",
+			Handler:    _UserService_GetUserByIdentifier_Handler,
 		},
 		{
 			MethodName: "GetUserById",

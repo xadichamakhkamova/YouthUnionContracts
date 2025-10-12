@@ -4,6 +4,7 @@ option go_package = "./genproto/userpb";
 
 service UserService {
     rpc CreateUser (CreateUserRequest) returns (User);
+    rpc GetUserByIdentifier(GetUserByIdentifierRequest) returns (User);
     rpc GetUserById (GetUserByIdRequest) returns (User);
     rpc UpdateUser (UpdateUserRequest) returns (User);
     rpc ListUsers (ListUsersRequest) returns (UserList);
@@ -68,6 +69,15 @@ message CreateUserRequest {
     Gender gender = 9;
 }
 
+message GetUserByIdentifierRequest {
+    int32 identifier = 1;
+    string password_hash = 2;
+}
+
+message GetUserByIdentifierResponse {
+    int32 status = 1;
+}
+
 message UpdateUserRequest {
     string id = 1;
     string first_name = 2;
@@ -86,7 +96,7 @@ message ChangePasswordRequest {
 }
 
 message ChangePasswordResponse {
-    string message = 1;          
+    int32 status = 1;          
     string updated_at = 2;      
 }
 
@@ -109,7 +119,7 @@ message DeleteUserRequest {
 }
 
 message DeleteUserResponse {
-    string message = 1;     
+    int32 status = 1;     
     string deleted_user_id = 2; 
     string deleted_at = 3;  
 }
@@ -125,6 +135,7 @@ message GetSessionByTokenRequest {
     string refresh_token = 1;
 }
 
+//Roles 
 message RoleType {
     string id = 1;
     string name = 2;          // ADMIN, ORGANIZER, STUDENT
@@ -153,7 +164,7 @@ message DeleteRoleRequest {
 }
 
 message DeleteRoleResponse {
-    string message = 1;
+    int32 status = 1;
     string deleted_role_id = 2;
     string deleted_at = 3;
 }
@@ -168,6 +179,7 @@ message RoleTypeList {
     int32 total_count = 2;
 }
 
+// User roles
 message UserRole {
     string id = 1;
     string user_id = 2;
@@ -185,7 +197,7 @@ message RemoveRoleRequest {
 }
 
 message RemoveRoleResponse {
-    string message = 1;
+    int32 status = 1;
     string removed_role_id = 2;
     string removed_at = 3;
 }
