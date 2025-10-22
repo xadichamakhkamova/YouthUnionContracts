@@ -1,0 +1,124 @@
+syntax = "proto3";
+
+option go_package = "./genproto/eventpb";
+
+// ================= SERVICE =================
+
+service EventService {
+    // CRUD
+    rpc CreateEvent(CreateEventRequest) returns (Event);
+    rpc UpdateEvent(UpdateEventRequest) returns (Event);
+    rpc GetEvent(GetEventRequest) returns (Event);
+    rpc ListEvents(ListEventsRequest) returns (ListEventsResponse);
+    rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse);
+  
+    // REGISTRATION
+    rpc RegisterEvent(RegisterEventRequest) returns (EventParticipant);
+    rpc RegisterTeamEvent(RegisterTeamEventRequest) returns (EventParticipant);
+    rpc ListParticipants(GetEventRequest) returns (EventParticipantResponse);
+  }
+  
+// ================= ENUMS =================
+
+enum EventType {
+  EVENT_TYPE_UNSPECIFIED = 0;
+  INDIVIDUAL = 1;
+  TEAM = 2;
+}
+
+enum EventStatus {
+  STATUS_UNSPECIFIED = 0;
+  ACTIVE = 1;
+  CANCELLED = 2;
+  FINISHED = 3;
+}
+
+// ================= MODELS =================
+
+message Event {
+  string id = 1;
+  EventType event_type = 2;
+  string title = 3;
+  string description = 4;
+  string location = 5;
+  string start_time = 6;
+  string end_time = 7;
+  string created_by = 8; // User Service ID
+  int32 max_participants = 9;
+  int32 current_participants = 10;
+  EventStatus status = 11;
+  string created_at = 12;
+  string updated_at = 13;
+}
+
+message EventParticipant {
+  string id = 1;
+  string event_id = 2;
+  string user_id = 3;
+  string role = 4;
+  string joined_at = 5;
+}
+
+// ================= REQUESTS =================
+
+message CreateEventRequest {
+  EventType event_type = 1;
+  string title = 2;
+  string description = 3;
+  string location = 4;
+  string start_time = 5;
+  string end_time = 6;
+  string created_by = 7;
+  int32 max_participants = 8;
+}
+
+message UpdateEventRequest {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  string location = 4;
+  string start_time = 5;
+  string end_time = 6;
+  int32 max_participants = 7;
+  EventStatus status = 8;
+}
+
+message GetEventRequest {
+  string id = 1;
+}
+
+message ListEventsRequest {
+  string search = 1;
+  EventType event_type = 2;
+  EventStatus status = 3;
+  int32 limit = 4;
+  int32 offset = 5;
+}
+
+message ListEventsResponse {
+  repeated Event events = 1;
+}
+
+message DeleteEventRequest {
+  string id = 1;
+}
+
+message DeleteEventResponse {
+    int32 status = 1;
+}
+
+// ========== EVENT REGISTRATION ==========
+
+message RegisterEventRequest {
+  string event_id = 1;
+  string user_id = 2; // yoki team leader id
+}
+
+message RegisterTeamEventRequest {
+  string event_id = 1;
+  string team_id = 2; // agar event_type = TEAM
+}
+
+message EventParticipantResponse {
+  repeated EventParticipant participants = 1;
+}

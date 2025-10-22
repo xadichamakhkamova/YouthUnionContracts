@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+option go_package = "./genproto/scoringpb";
+
+// ---------------- SERVICE ----------------
+
+service ScoringService {
+    rpc CreateScore (CreateScoreRequest) returns (Score);
+    rpc UpdateScore (UpdateScoreRequest) returns (Score);
+    rpc GetScore (GetScoreRequest) returns (Score);
+    rpc GetScoresByEvent (GetScoresByEventRequest) returns (ScoreList);
+    rpc GetScoresByParticipant (GetScoresByParticipantRequest) returns (ScoreList);
+    rpc DeleteScore (DeleteScoreRequest) returns (DeleteScoreResponse);
+  }
+
+message Score {
+  string id = 1;
+  string event_id = 2;
+  string participant_id = 3; // user_id
+  int32 score_value = 4;
+  string reason = 5; // optional - “Best presentation”, “First place”, etc.
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+// ---------------- REQUESTS ----------------
+
+message CreateScoreRequest {
+  string event_id = 1;
+  string participant_id = 2; // user_id 
+  int32 score_value = 3;
+  string reason = 4;
+}
+
+message UpdateScoreRequest {
+  string id = 1;
+  int32 score_value = 2;
+  string reason = 3;
+}
+
+message GetScoreRequest {
+  string id = 1;
+}
+
+message GetScoresByEventRequest {
+  string event_id = 1;
+}
+
+message GetScoresByParticipantRequest {
+  string participant_id = 1;
+}
+
+message DeleteScoreRequest {
+  string id = 1;
+}
+
+message DeleteScoreResponse {
+    int32 status = 1;
+}
+// ---------------- RESPONSES ----------------
+
+message ScoreList {
+  repeated Score scores = 1;
+}
