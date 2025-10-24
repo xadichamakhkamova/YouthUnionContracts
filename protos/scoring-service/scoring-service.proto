@@ -61,4 +61,5 @@ message DeleteScoreResponse {
 
 message ScoreList {
   repeated Score scores = 1;
+  int32 total_count = 2;
 }

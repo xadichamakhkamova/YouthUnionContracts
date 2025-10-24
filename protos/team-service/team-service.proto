@@ -97,10 +97,12 @@ message RespondInviteRequest {
 
 message TeamList {
   repeated Team teams = 1;
+  int32 total_count = 2;
 }
 
 message MemberList {
   repeated TeamMember members = 1;
+  int32 total_count = 2;
 }
 
 message StatusResponse {

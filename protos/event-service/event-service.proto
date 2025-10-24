@@ -97,6 +97,7 @@ message ListEventsRequest {
 
 message ListEventsResponse {
   repeated Event events = 1;
+  int32 total_count = 2;
 }
 
 message DeleteEventRequest {
@@ -121,4 +122,5 @@ message RegisterTeamEventRequest {
 
 message EventParticipantResponse {
   repeated EventParticipant participants = 1;
+  int32 total_count = 2;
 }

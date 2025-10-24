@@ -72,6 +72,10 @@ message GetUserByIdentifierResponse {
     int32 status = 1;
 }
 
+message GetUserByIdRequest {
+    string id = 1;
+}
+
 message UpdateUserRequest {
     string id = 1;
     string first_name = 2;
@@ -92,10 +96,6 @@ message ChangePasswordRequest {
 message ChangePasswordResponse {
     int32 status = 1;          
     string updated_at = 2;      
-}
-
-message GetUserByIdRequest {
-    string id = 1;
 }
 
 message ListUsersRequest {
