@@ -601,7 +601,7 @@ type ListEventsRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Search    string      `protobuf:"bytes,1,opt,name=search,proto3" json:"search,omitempty"`
+	Search    string      `protobuf:"bytes,1,opt,name=search,proto3" json:"search,omitempty"` //name
 	EventType EventType   `protobuf:"varint,2,opt,name=event_type,json=eventType,proto3,enum=EventType" json:"event_type,omitempty"`
 	Status    EventStatus `protobuf:"varint,3,opt,name=status,proto3,enum=EventStatus" json:"status,omitempty"`
 	Limit     int32       `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
