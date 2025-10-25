@@ -92,7 +92,7 @@ message ListEventsRequest {
   EventType event_type = 2;
   EventStatus status = 3;
   int32 limit = 4;
-  int32 offset = 5;
+  int32 page = 5;
 } 
 
 message ListEventsResponse {
