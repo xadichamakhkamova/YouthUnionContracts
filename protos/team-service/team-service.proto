@@ -19,14 +19,17 @@ service TeamService {
   
 
 // ================= ENUMS =================
-
 enum MemberRole {
   LEADER = 0;
   MEMBER = 1;
 }
 
+enum InviteStatus {
+  PENDING = 0;
+  ACCEPTED = 1;
+  REJECTED = 2;
+}
 // ================= MODELS =================
-
 message Team {
   string id = 1;
   string name = 2;
@@ -77,7 +80,7 @@ message InviteMemberRequest {
 message RespondInviteRequest {
   string team_id = 1;
   string invited_user_id = 2;
-  bool accepted = 3;
+  InviteStatus status = 3; // accepted/rejected
 }
 
 // ================= RESPONSES =================
