@@ -8,7 +8,7 @@ service ScoringService {
   rpc GiveScore (GiveScoreRequest) returns (Score);
   rpc GetScoresByEvent (GetScoresByEventRequest) returns (ScoreList);
   rpc GetScoresByUser (GetScoresByUserRequest) returns (ScoreList);
-  rpc GetScoreByTeam (GetScoreByTeamRequest) returns (Score);
+  rpc GetScoresByTeam (GetScoresByTeamRequest) returns (ScoreList);
   rpc GetGlobalRanking (GetGlobalRankingRequest) returns (RankingList);
 }
 
@@ -19,38 +19,26 @@ enum ScoredByType {
   ADMIN = 1;
 }
 
-enum ScoreTargetType {
-  SCORE_TARGET_TEAM = 0;
-  SCORE_TARGET_INDIVIDUAL = 1;
-}
-
 // ================= MODELS =================
 
 message Score {
   string id = 1;
   string event_id = 2;
-  string target_id = 3;           // Team ID yoki User ID (ScoreTargetType ga qarab)
-  ScoreTargetType target_type = 4;
+  string team_id = 3;            // student qaysi teamda
+  string user_id = 4;            // kimga baho berilayapti
   int32 points = 5;
-  string comment = 6;             // optional feedback
-  string scored_by_id = 7;        // kim qo‘ydi (organizer yoki admin)
+  string comment = 6;
+  string scored_by_id = 7;       // kim berdi
   ScoredByType scored_by_type = 8;
   string created_at = 9;
-}
-
-message Ranking {
-  string user_id = 1;
-  string user_name = 2;
-  int32 total_points = 3;
-  int32 rank = 4;
 }
 
 // ================= REQUESTS =================
 
 message GiveScoreRequest {
   string event_id = 1;
-  string target_id = 2;           // team_id yoki user_id
-  ScoreTargetType target_type = 3;
+  string team_id = 2;
+  string user_id = 3;            // har bir member uchun alohida yuboriladi
   int32 points = 4;
   string comment = 5;
   string scored_by_id = 6;
@@ -65,7 +53,7 @@ message GetScoresByUserRequest {
   string user_id = 1;
 }
 
-message GetScoreByTeamRequest {
+message GetScoresByTeamRequest {
   string team_id = 1;
 }
 
@@ -74,14 +62,21 @@ message GetGlobalRankingRequest {
   int32 page = 2;
 }
 
-message RankingList {
-  repeated Ranking rankings = 1;
-  int32 total_count = 2;
-}
-
 // ================= RESPONSES =================
 
 message ScoreList {
   repeated Score scores = 1;
+  int32 total_count = 2;
+}
+
+message Ranking {
+  string user_id = 1;
+  string user_name = 2;
+  int32 total_points = 3;
+  int32 rank = 4;
+}
+
+message RankingList {
+  repeated Ranking rankings = 1;
   int32 total_count = 2;
 }
