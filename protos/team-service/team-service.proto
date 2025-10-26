@@ -68,6 +68,8 @@ message GetTeamRequest {
 
 message GetTeamsByEventRequest {
   string event_id = 1;
+  int32 limit = 2;
+  int32 page = 3;
 }
 
 // --- Invitations & Membership ---
