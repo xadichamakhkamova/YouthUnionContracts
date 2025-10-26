@@ -19,14 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	TeamService_CreateTeam_FullMethodName       = "/TeamService/CreateTeam"
-	TeamService_UpdateTeam_FullMethodName       = "/TeamService/UpdateTeam"
-	TeamService_GetTeam_FullMethodName          = "/TeamService/GetTeam"
-	TeamService_GetTeamsByEvent_FullMethodName  = "/TeamService/GetTeamsByEvent"
-	TeamService_GetTeamsByLeader_FullMethodName = "/TeamService/GetTeamsByLeader"
-	TeamService_InviteMember_FullMethodName     = "/TeamService/InviteMember"
-	TeamService_RespondInvite_FullMethodName    = "/TeamService/RespondInvite"
-	TeamService_GetTeamMembers_FullMethodName   = "/TeamService/GetTeamMembers"
+	TeamService_CreateTeam_FullMethodName      = "/TeamService/CreateTeam"
+	TeamService_UpdateTeam_FullMethodName      = "/TeamService/UpdateTeam"
+	TeamService_GetTeamsByEvent_FullMethodName = "/TeamService/GetTeamsByEvent"
+	TeamService_InviteMember_FullMethodName    = "/TeamService/InviteMember"
+	TeamService_RespondInvite_FullMethodName   = "/TeamService/RespondInvite"
+	TeamService_GetTeamMembers_FullMethodName  = "/TeamService/GetTeamMembers"
 )
 
 // TeamServiceClient is the client API for TeamService service.
@@ -36,9 +34,7 @@ type TeamServiceClient interface {
 	// --- Team CRUD ---
 	CreateTeam(ctx context.Context, in *CreateTeamRequest, opts ...grpc.CallOption) (*Team, error)
 	UpdateTeam(ctx context.Context, in *UpdateTeamRequest, opts ...grpc.CallOption) (*Team, error)
-	GetTeam(ctx context.Context, in *GetTeamRequest, opts ...grpc.CallOption) (*Team, error)
 	GetTeamsByEvent(ctx context.Context, in *GetTeamsByEventRequest, opts ...grpc.CallOption) (*TeamList, error)
-	GetTeamsByLeader(ctx context.Context, in *GetTeamsByLeaderRequest, opts ...grpc.CallOption) (*TeamList, error)
 	// --- Membership & Invitations ---
 	InviteMember(ctx context.Context, in *InviteMemberRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 	RespondInvite(ctx context.Context, in *RespondInviteRequest, opts ...grpc.CallOption) (*StatusResponse, error)
@@ -73,30 +69,10 @@ func (c *teamServiceClient) UpdateTeam(ctx context.Context, in *UpdateTeamReques
 	return out, nil
 }
 
-func (c *teamServiceClient) GetTeam(ctx context.Context, in *GetTeamRequest, opts ...grpc.CallOption) (*Team, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Team)
-	err := c.cc.Invoke(ctx, TeamService_GetTeam_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *teamServiceClient) GetTeamsByEvent(ctx context.Context, in *GetTeamsByEventRequest, opts ...grpc.CallOption) (*TeamList, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(TeamList)
 	err := c.cc.Invoke(ctx, TeamService_GetTeamsByEvent_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *teamServiceClient) GetTeamsByLeader(ctx context.Context, in *GetTeamsByLeaderRequest, opts ...grpc.CallOption) (*TeamList, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TeamList)
-	err := c.cc.Invoke(ctx, TeamService_GetTeamsByLeader_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -140,9 +116,7 @@ type TeamServiceServer interface {
 	// --- Team CRUD ---
 	CreateTeam(context.Context, *CreateTeamRequest) (*Team, error)
 	UpdateTeam(context.Context, *UpdateTeamRequest) (*Team, error)
-	GetTeam(context.Context, *GetTeamRequest) (*Team, error)
 	GetTeamsByEvent(context.Context, *GetTeamsByEventRequest) (*TeamList, error)
-	GetTeamsByLeader(context.Context, *GetTeamsByLeaderRequest) (*TeamList, error)
 	// --- Membership & Invitations ---
 	InviteMember(context.Context, *InviteMemberRequest) (*StatusResponse, error)
 	RespondInvite(context.Context, *RespondInviteRequest) (*StatusResponse, error)
@@ -160,14 +134,8 @@ func (UnimplementedTeamServiceServer) CreateTeam(context.Context, *CreateTeamReq
 func (UnimplementedTeamServiceServer) UpdateTeam(context.Context, *UpdateTeamRequest) (*Team, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateTeam not implemented")
 }
-func (UnimplementedTeamServiceServer) GetTeam(context.Context, *GetTeamRequest) (*Team, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetTeam not implemented")
-}
 func (UnimplementedTeamServiceServer) GetTeamsByEvent(context.Context, *GetTeamsByEventRequest) (*TeamList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTeamsByEvent not implemented")
-}
-func (UnimplementedTeamServiceServer) GetTeamsByLeader(context.Context, *GetTeamsByLeaderRequest) (*TeamList, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetTeamsByLeader not implemented")
 }
 func (UnimplementedTeamServiceServer) InviteMember(context.Context, *InviteMemberRequest) (*StatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InviteMember not implemented")
@@ -227,24 +195,6 @@ func _TeamService_UpdateTeam_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TeamService_GetTeam_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetTeamRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TeamServiceServer).GetTeam(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TeamService_GetTeam_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TeamServiceServer).GetTeam(ctx, req.(*GetTeamRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _TeamService_GetTeamsByEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetTeamsByEventRequest)
 	if err := dec(in); err != nil {
@@ -259,24 +209,6 @@ func _TeamService_GetTeamsByEvent_Handler(srv interface{}, ctx context.Context, 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TeamServiceServer).GetTeamsByEvent(ctx, req.(*GetTeamsByEventRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _TeamService_GetTeamsByLeader_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetTeamsByLeaderRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TeamServiceServer).GetTeamsByLeader(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TeamService_GetTeamsByLeader_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TeamServiceServer).GetTeamsByLeader(ctx, req.(*GetTeamsByLeaderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -351,16 +283,8 @@ var TeamService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TeamService_UpdateTeam_Handler,
 		},
 		{
-			MethodName: "GetTeam",
-			Handler:    _TeamService_GetTeam_Handler,
-		},
-		{
 			MethodName: "GetTeamsByEvent",
 			Handler:    _TeamService_GetTeamsByEvent_Handler,
-		},
-		{
-			MethodName: "GetTeamsByLeader",
-			Handler:    _TeamService_GetTeamsByLeader_Handler,
 		},
 		{
 			MethodName: "InviteMember",

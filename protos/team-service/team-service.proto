@@ -8,9 +8,7 @@ service TeamService {
     // --- Team CRUD ---
     rpc CreateTeam (CreateTeamRequest) returns (Team);
     rpc UpdateTeam (UpdateTeamRequest) returns (Team);
-    rpc GetTeam (GetTeamRequest) returns (Team);
     rpc GetTeamsByEvent (GetTeamsByEventRequest) returns (TeamList);
-    rpc GetTeamsByLeader (GetTeamsByLeaderRequest) returns (TeamList);
   
     // --- Membership & Invitations ---
     rpc InviteMember (InviteMemberRequest) returns (StatusResponse);
@@ -27,12 +25,6 @@ enum MemberRole {
   MEMBER = 1;
 }
 
-enum TeamStatus {
-  TEAM_STATUS_ACTIVE = 0;
-  TEAM_STATUS_INACTIVE = 1;
-  TEAM_STATUS_DISBANDED = 2;
-}
-
 // ================= MODELS =================
 
 message Team {
@@ -40,7 +32,7 @@ message Team {
   string name = 2;
   string leader_id = 3; // UserService dagi foydalanuvchi ID
   string event_id = 4;  // EventService dagi event ID
-  TeamStatus status = 5;
+  bool is_ready = 5;
   string created_at = 6;
   string updated_at = 7;
 }
@@ -65,19 +57,14 @@ message CreateTeamRequest {
 message UpdateTeamRequest {
   string id = 1;
   string name = 2;
-  TeamStatus status = 3;
 }
 
 message GetTeamRequest {
-  string id = 1;
+  string team_id = 1;
 }
 
 message GetTeamsByEventRequest {
   string event_id = 1;
-}
-
-message GetTeamsByLeaderRequest {
-  string leader_id = 1;
 }
 
 // --- Invitations & Membership ---

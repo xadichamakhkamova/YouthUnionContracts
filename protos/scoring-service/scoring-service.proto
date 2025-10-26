@@ -2,62 +2,84 @@ syntax = "proto3";
 
 option go_package = "./genproto/scoringpb";
 
-// ---------------- SERVICE ----------------
+// ================= SERVICE =================
 
 service ScoringService {
-    rpc CreateScore (CreateScoreRequest) returns (Score);
-    rpc UpdateScore (UpdateScoreRequest) returns (Score);
-    rpc GetScore (GetScoreRequest) returns (Score);
-    rpc GetScoresByEvent (GetScoresByEventRequest) returns (ScoreList);
-    rpc GetScoresByParticipant (GetScoresByParticipantRequest) returns (ScoreList);
-    rpc DeleteScore (DeleteScoreRequest) returns (DeleteScoreResponse);
-  }
+  rpc GiveScore (GiveScoreRequest) returns (Score);
+  rpc GetScoresByEvent (GetScoresByEventRequest) returns (ScoreList);
+  rpc GetScoresByUser (GetScoresByUserRequest) returns (ScoreList);
+  rpc GetScoreByTeam (GetScoreByTeamRequest) returns (Score);
+  rpc GetGlobalRanking (GetGlobalRankingRequest) returns (RankingList);
+}
+
+// ================= ENUMS =================
+
+enum ScoredByType {
+  ORGANIZER = 0;
+  ADMIN = 1;
+}
+
+enum ScoreTargetType {
+  SCORE_TARGET_TEAM = 0;
+  SCORE_TARGET_INDIVIDUAL = 1;
+}
+
+// ================= MODELS =================
 
 message Score {
   string id = 1;
   string event_id = 2;
-  string participant_id = 3; // user_id
-  int32 score_value = 4;
-  string reason = 5; // optional - “Best presentation”, “First place”, etc.
-  string created_at = 6;
-  string updated_at = 7;
+  string target_id = 3;           // Team ID yoki User ID (ScoreTargetType ga qarab)
+  ScoreTargetType target_type = 4;
+  int32 points = 5;
+  string comment = 6;             // optional feedback
+  string scored_by_id = 7;        // kim qo‘ydi (organizer yoki admin)
+  ScoredByType scored_by_type = 8;
+  string created_at = 9;
 }
 
-// ---------------- REQUESTS ----------------
+message Ranking {
+  string user_id = 1;
+  string user_name = 2;
+  int32 total_points = 3;
+  int32 rank = 4;
+}
 
-message CreateScoreRequest {
+// ================= REQUESTS =================
+
+message GiveScoreRequest {
   string event_id = 1;
-  string participant_id = 2; // user_id 
-  int32 score_value = 3;
-  string reason = 4;
-}
-
-message UpdateScoreRequest {
-  string id = 1;
-  int32 score_value = 2;
-  string reason = 3;
-}
-
-message GetScoreRequest {
-  string id = 1;
+  string target_id = 2;           // team_id yoki user_id
+  ScoreTargetType target_type = 3;
+  int32 points = 4;
+  string comment = 5;
+  string scored_by_id = 6;
+  ScoredByType scored_by_type = 7;
 }
 
 message GetScoresByEventRequest {
   string event_id = 1;
 }
 
-message GetScoresByParticipantRequest {
-  string participant_id = 1;
+message GetScoresByUserRequest {
+  string user_id = 1;
 }
 
-message DeleteScoreRequest {
-  string id = 1;
+message GetScoreByTeamRequest {
+  string team_id = 1;
 }
 
-message DeleteScoreResponse {
-    int32 status = 1;
+message GetGlobalRankingRequest {
+  int32 limit = 1;
+  int32 page = 2;
 }
-// ---------------- RESPONSES ----------------
+
+message RankingList {
+  repeated Ranking rankings = 1;
+  int32 total_count = 2;
+}
+
+// ================= RESPONSES =================
 
 message ScoreList {
   repeated Score scores = 1;

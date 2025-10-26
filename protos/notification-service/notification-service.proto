@@ -1,0 +1,35 @@
+syntax="proto3";
+
+option go_package = "./genproto/notificationpb";
+
+service NotificationService {
+    rpc SendNotification (SendNotificationRequest) returns (SendNotificationResponse);
+}
+
+enum SenderType {
+    UNKNOWN_SENDER = 0;
+    ADMIN = 1;
+    ORGANIZER = 2;
+  }
+  
+  enum NotificationType {
+    SYSTEM = 0;
+    SCORE_UPDATE = 1;
+    TEAM_INVITE = 2;
+    EVENT_UPDATE = 3;
+    GENERAL = 4; // oddiy e’lonlar uchun
+  }
+  
+message SendNotificationRequest {
+    string sender_id = 1;          // Kim yubordi (admin yoki organizer user_id)
+    SenderType sender_type = 2;    // ADMIN yoki ORGANIZER
+    string user_id = 3;            // Agar individual bo‘lsa — bitta foydalanuvchi ID
+    bool is_public = 4;            // True bo‘lsa — barchaga yuboriladi (public)
+    string title = 5;              // Xabar sarlavhasi
+    string body = 6;               // Xabar matni
+    NotificationType type = 7;     // SCORE_UPDATE, TEAM_INVITE, SYSTEM va h.k.
+}
+
+message SendNotificationResponse {
+    bool success = 1;
+}
