@@ -65,7 +65,7 @@ message CreateUserRequest {
 
 message GetUserByIdentifierRequest {
     int32 identifier = 1;
-    string password_hash = 2;
+    string password = 2;
 }
 
 message GetUserByIdentifierResponse {
