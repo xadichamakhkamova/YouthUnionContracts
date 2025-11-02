@@ -5,18 +5,18 @@ option go_package = "./genproto/teampb";
 // ================= SERVICE =================
 
 service TeamService {
-    // --- Team CRUD ---
-    rpc CreateTeam (CreateTeamRequest) returns (Team);
-    rpc UpdateTeam (UpdateTeamRequest) returns (Team);
-    rpc GetTeamsByEvent (GetTeamsByEventRequest) returns (TeamList);
-    rpc RemoveTeamMember (RemoveTeamMemberRequest) returns (StatusResponse);
-  
-    // --- Membership & Invitations ---
-    rpc InviteMember (InviteMemberRequest) returns (StatusResponse);
-    rpc RespondInvite (RespondInviteRequest) returns (StatusResponse);
+  // --- Team CRUD ---
+  rpc CreateTeam (CreateTeamRequest) returns (Team);
+  rpc UpdateTeam (UpdateTeamRequest) returns (Team);
+  rpc GetTeamsByEvent (GetTeamsByEventRequest) returns (TeamList);
+  rpc RemoveTeamMember (RemoveTeamMemberRequest) returns (StatusResponse);
 
-    rpc GetTeamMembers (GetTeamRequest) returns (MemberList);
-  }
+  // --- Membership & Invitations ---
+  rpc InviteMember (InviteMemberRequest) returns (StatusResponse);
+  rpc RespondInvite (RespondInviteRequest) returns (StatusResponse);
+
+  rpc GetTeamMembers (GetTeamRequest) returns (MemberList);
+}
   
 
 // ================= ENUMS =================

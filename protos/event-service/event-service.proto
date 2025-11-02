@@ -6,17 +6,17 @@ option go_package = "./genproto/eventpb";
 
 service EventService {
     // CRUD
-    rpc CreateEvent(CreateEventRequest) returns (Event);
-    rpc UpdateEvent(UpdateEventRequest) returns (Event);
-    rpc GetEvent(GetEventRequest) returns (Event);
-    rpc ListEvents(ListEventsRequest) returns (ListEventsResponse);
-    rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse);
-  
-    // REGISTRATION
-    rpc RegisterEvent(RegisterEventRequest) returns (EventParticipant);
-    rpc RegisterTeamEvent(RegisterTeamEventRequest) returns (EventParticipant);
-    rpc ListParticipants(GetEventRequest) returns (EventParticipantResponse);
-  }
+  rpc CreateEvent(CreateEventRequest) returns (Event);
+  rpc UpdateEvent(UpdateEventRequest) returns (Event);
+  rpc GetEvent(GetEventRequest) returns (Event);
+  rpc ListEvents(ListEventsRequest) returns (ListEventsResponse);
+  rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse);
+
+  // REGISTRATION
+  rpc RegisterEvent(RegisterEventRequest) returns (EventParticipant);
+  rpc RegisterTeamEvent(RegisterTeamEventRequest) returns (EventParticipant);
+  rpc ListParticipants(GetEventRequest) returns (EventParticipantResponse);
+}
   
 // ================= ENUMS =================
 

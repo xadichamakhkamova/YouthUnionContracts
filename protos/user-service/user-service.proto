@@ -69,7 +69,8 @@ message GetUserByIdentifierRequest {
 }
 
 message GetUserByIdentifierResponse {
-    int32 status = 1;
+    int32 id = 1;
+    int32 identifier = 2;
 }
 
 message GetUserByIdRequest {
