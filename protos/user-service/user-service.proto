@@ -69,7 +69,7 @@ message GetUserByIdentifierRequest {
 }
 
 message GetUserByIdentifierResponse {
-    int32 id = 1;
+    string id = 1;
     int32 identifier = 2;
 }
 
