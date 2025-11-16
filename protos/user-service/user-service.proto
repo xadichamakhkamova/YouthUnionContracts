@@ -178,7 +178,7 @@ message RoleTypeList {
 message UserRole {
     string id = 1;
     string user_id = 2;
-    string role_id = 3;
+    string role_name = 3;
     string assigned_at = 4;
 }
 

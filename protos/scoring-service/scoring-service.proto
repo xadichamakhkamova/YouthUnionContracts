@@ -47,14 +47,20 @@ message GiveScoreRequest {
 
 message GetScoresByEventRequest {
   string event_id = 1;
+  int32 limit = 2;
+  int32 page = 3;
 }
 
 message GetScoresByUserRequest {
   string user_id = 1;
+  int32 limit = 2;
+  int32 page = 3;
 }
 
 message GetScoresByTeamRequest {
   string team_id = 1;
+  int32 limit = 2;
+  int32 page = 3;
 }
 
 message GetGlobalRankingRequest {
