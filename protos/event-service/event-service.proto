@@ -129,3 +129,4 @@ message EventParticipantResponse {
   repeated EventParticipant participants = 1;
   int32 total_count = 2;
 }
+
