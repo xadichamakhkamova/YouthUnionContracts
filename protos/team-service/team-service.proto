@@ -12,8 +12,8 @@ service TeamService {
   rpc RemoveTeamMember (RemoveTeamMemberRequest) returns (StatusResponse);
 
   // --- Membership & Invitations ---
-  rpc InviteMember (InviteMemberRequest) returns (StatusResponse);
-  rpc RespondInvite (RespondInviteRequest) returns (StatusResponse);
+  rpc InviteMember (InviteMemberRequest) returns (InvitationsResponse);
+  rpc RespondInvite (RespondInviteRequest) returns (InvitationsResponse);
 
   rpc GetTeamMembers (GetTeamRequest) returns (MemberList);
 }
@@ -105,4 +105,14 @@ message MemberList {
 
 message StatusResponse {
   int32 status = 1;
+}
+
+message InvitationsResponse {
+  string id = 1;
+  string team_id = 2;
+  string inviter_id = 3; 
+  string invited_user_id = 4;
+  string status = 5;
+  string created_at = 6;
+  string responded_at = 7;
 }

@@ -38,8 +38,8 @@ type TeamServiceClient interface {
 	GetTeamsByEvent(ctx context.Context, in *GetTeamsByEventRequest, opts ...grpc.CallOption) (*TeamList, error)
 	RemoveTeamMember(ctx context.Context, in *RemoveTeamMemberRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 	// --- Membership & Invitations ---
-	InviteMember(ctx context.Context, in *InviteMemberRequest, opts ...grpc.CallOption) (*StatusResponse, error)
-	RespondInvite(ctx context.Context, in *RespondInviteRequest, opts ...grpc.CallOption) (*StatusResponse, error)
+	InviteMember(ctx context.Context, in *InviteMemberRequest, opts ...grpc.CallOption) (*InvitationsResponse, error)
+	RespondInvite(ctx context.Context, in *RespondInviteRequest, opts ...grpc.CallOption) (*InvitationsResponse, error)
 	GetTeamMembers(ctx context.Context, in *GetTeamRequest, opts ...grpc.CallOption) (*MemberList, error)
 }
 
@@ -91,9 +91,9 @@ func (c *teamServiceClient) RemoveTeamMember(ctx context.Context, in *RemoveTeam
 	return out, nil
 }
 
-func (c *teamServiceClient) InviteMember(ctx context.Context, in *InviteMemberRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
+func (c *teamServiceClient) InviteMember(ctx context.Context, in *InviteMemberRequest, opts ...grpc.CallOption) (*InvitationsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(StatusResponse)
+	out := new(InvitationsResponse)
 	err := c.cc.Invoke(ctx, TeamService_InviteMember_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -101,9 +101,9 @@ func (c *teamServiceClient) InviteMember(ctx context.Context, in *InviteMemberRe
 	return out, nil
 }
 
-func (c *teamServiceClient) RespondInvite(ctx context.Context, in *RespondInviteRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
+func (c *teamServiceClient) RespondInvite(ctx context.Context, in *RespondInviteRequest, opts ...grpc.CallOption) (*InvitationsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(StatusResponse)
+	out := new(InvitationsResponse)
 	err := c.cc.Invoke(ctx, TeamService_RespondInvite_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -131,8 +131,8 @@ type TeamServiceServer interface {
 	GetTeamsByEvent(context.Context, *GetTeamsByEventRequest) (*TeamList, error)
 	RemoveTeamMember(context.Context, *RemoveTeamMemberRequest) (*StatusResponse, error)
 	// --- Membership & Invitations ---
-	InviteMember(context.Context, *InviteMemberRequest) (*StatusResponse, error)
-	RespondInvite(context.Context, *RespondInviteRequest) (*StatusResponse, error)
+	InviteMember(context.Context, *InviteMemberRequest) (*InvitationsResponse, error)
+	RespondInvite(context.Context, *RespondInviteRequest) (*InvitationsResponse, error)
 	GetTeamMembers(context.Context, *GetTeamRequest) (*MemberList, error)
 	mustEmbedUnimplementedTeamServiceServer()
 }
@@ -153,10 +153,10 @@ func (UnimplementedTeamServiceServer) GetTeamsByEvent(context.Context, *GetTeams
 func (UnimplementedTeamServiceServer) RemoveTeamMember(context.Context, *RemoveTeamMemberRequest) (*StatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveTeamMember not implemented")
 }
-func (UnimplementedTeamServiceServer) InviteMember(context.Context, *InviteMemberRequest) (*StatusResponse, error) {
+func (UnimplementedTeamServiceServer) InviteMember(context.Context, *InviteMemberRequest) (*InvitationsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InviteMember not implemented")
 }
-func (UnimplementedTeamServiceServer) RespondInvite(context.Context, *RespondInviteRequest) (*StatusResponse, error) {
+func (UnimplementedTeamServiceServer) RespondInvite(context.Context, *RespondInviteRequest) (*InvitationsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RespondInvite not implemented")
 }
 func (UnimplementedTeamServiceServer) GetTeamMembers(context.Context, *GetTeamRequest) (*MemberList, error) {
