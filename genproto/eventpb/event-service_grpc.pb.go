@@ -42,7 +42,7 @@ type EventServiceClient interface {
 	// REGISTRATION
 	RegisterEvent(ctx context.Context, in *RegisterEventRequest, opts ...grpc.CallOption) (*EventParticipant, error)
 	RegisterTeamEvent(ctx context.Context, in *RegisterTeamEventRequest, opts ...grpc.CallOption) (*EventParticipant, error)
-	ListParticipants(ctx context.Context, in *GetEventRequest, opts ...grpc.CallOption) (*EventParticipantResponse, error)
+	ListParticipants(ctx context.Context, in *EventParticipantRequest, opts ...grpc.CallOption) (*EventParticipantResponse, error)
 }
 
 type eventServiceClient struct {
@@ -123,7 +123,7 @@ func (c *eventServiceClient) RegisterTeamEvent(ctx context.Context, in *Register
 	return out, nil
 }
 
-func (c *eventServiceClient) ListParticipants(ctx context.Context, in *GetEventRequest, opts ...grpc.CallOption) (*EventParticipantResponse, error) {
+func (c *eventServiceClient) ListParticipants(ctx context.Context, in *EventParticipantRequest, opts ...grpc.CallOption) (*EventParticipantResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(EventParticipantResponse)
 	err := c.cc.Invoke(ctx, EventService_ListParticipants_FullMethodName, in, out, cOpts...)
@@ -146,7 +146,7 @@ type EventServiceServer interface {
 	// REGISTRATION
 	RegisterEvent(context.Context, *RegisterEventRequest) (*EventParticipant, error)
 	RegisterTeamEvent(context.Context, *RegisterTeamEventRequest) (*EventParticipant, error)
-	ListParticipants(context.Context, *GetEventRequest) (*EventParticipantResponse, error)
+	ListParticipants(context.Context, *EventParticipantRequest) (*EventParticipantResponse, error)
 	mustEmbedUnimplementedEventServiceServer()
 }
 
@@ -175,7 +175,7 @@ func (UnimplementedEventServiceServer) RegisterEvent(context.Context, *RegisterE
 func (UnimplementedEventServiceServer) RegisterTeamEvent(context.Context, *RegisterTeamEventRequest) (*EventParticipant, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterTeamEvent not implemented")
 }
-func (UnimplementedEventServiceServer) ListParticipants(context.Context, *GetEventRequest) (*EventParticipantResponse, error) {
+func (UnimplementedEventServiceServer) ListParticipants(context.Context, *EventParticipantRequest) (*EventParticipantResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListParticipants not implemented")
 }
 func (UnimplementedEventServiceServer) mustEmbedUnimplementedEventServiceServer() {}
@@ -318,7 +318,7 @@ func _EventService_RegisterTeamEvent_Handler(srv interface{}, ctx context.Contex
 }
 
 func _EventService_ListParticipants_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetEventRequest)
+	in := new(EventParticipantRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -330,7 +330,7 @@ func _EventService_ListParticipants_Handler(srv interface{}, ctx context.Context
 		FullMethod: EventService_ListParticipants_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EventServiceServer).ListParticipants(ctx, req.(*GetEventRequest))
+		return srv.(EventServiceServer).ListParticipants(ctx, req.(*EventParticipantRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
