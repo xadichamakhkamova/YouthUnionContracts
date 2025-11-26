@@ -19,22 +19,39 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	ScoringService_GiveScore_FullMethodName        = "/ScoringService/GiveScore"
-	ScoringService_GetScoresByEvent_FullMethodName = "/ScoringService/GetScoresByEvent"
-	ScoringService_GetScoresByUser_FullMethodName  = "/ScoringService/GetScoresByUser"
-	ScoringService_GetScoresByTeam_FullMethodName  = "/ScoringService/GetScoresByTeam"
-	ScoringService_GetGlobalRanking_FullMethodName = "/ScoringService/GetGlobalRanking"
+	ScoringService_GiveTeamScore_FullMethodName       = "/ScoringService/GiveTeamScore"
+	ScoringService_GiveIndividualScore_FullMethodName = "/ScoringService/GiveIndividualScore"
+	ScoringService_UpdateScore_FullMethodName         = "/ScoringService/UpdateScore"
+	ScoringService_DeleteScore_FullMethodName         = "/ScoringService/DeleteScore"
+	ScoringService_GetScoreById_FullMethodName        = "/ScoringService/GetScoreById"
+	ScoringService_GetScoresByEvent_FullMethodName    = "/ScoringService/GetScoresByEvent"
+	ScoringService_GetScoresByUser_FullMethodName     = "/ScoringService/GetScoresByUser"
+	ScoringService_GetScoresByTeam_FullMethodName     = "/ScoringService/GetScoresByTeam"
+	ScoringService_GetEventRanking_FullMethodName     = "/ScoringService/GetEventRanking"
+	ScoringService_GetGlobalRanking_FullMethodName    = "/ScoringService/GetGlobalRanking"
+	ScoringService_GetTeamRanking_FullMethodName      = "/ScoringService/GetTeamRanking"
 )
 
 // ScoringServiceClient is the client API for ScoringService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ScoringServiceClient interface {
-	GiveScore(ctx context.Context, in *GiveScoreRequest, opts ...grpc.CallOption) (*Score, error)
+	// Team event uchun scoring
+	GiveTeamScore(ctx context.Context, in *GiveTeamScoreRequest, opts ...grpc.CallOption) (*Score, error)
+	// Individual event uchun scoring
+	GiveIndividualScore(ctx context.Context, in *GiveIndividualScoreRequest, opts ...grpc.CallOption) (*Score, error)
+	// Score management
+	UpdateScore(ctx context.Context, in *UpdateScoreRequest, opts ...grpc.CallOption) (*Score, error)
+	DeleteScore(ctx context.Context, in *DeleteScoreRequest, opts ...grpc.CallOption) (*ScoringStatusResponse, error)
+	// Score queries
+	GetScoreById(ctx context.Context, in *GetScoreByIdRequest, opts ...grpc.CallOption) (*Score, error)
 	GetScoresByEvent(ctx context.Context, in *GetScoresByEventRequest, opts ...grpc.CallOption) (*ScoreList, error)
 	GetScoresByUser(ctx context.Context, in *GetScoresByUserRequest, opts ...grpc.CallOption) (*ScoreList, error)
 	GetScoresByTeam(ctx context.Context, in *GetScoresByTeamRequest, opts ...grpc.CallOption) (*ScoreList, error)
+	// Rankings
+	GetEventRanking(ctx context.Context, in *GetEventRankingRequest, opts ...grpc.CallOption) (*RankingList, error)
 	GetGlobalRanking(ctx context.Context, in *GetGlobalRankingRequest, opts ...grpc.CallOption) (*RankingList, error)
+	GetTeamRanking(ctx context.Context, in *GetTeamRankingRequest, opts ...grpc.CallOption) (*TeamRankingList, error)
 }
 
 type scoringServiceClient struct {
@@ -45,10 +62,50 @@ func NewScoringServiceClient(cc grpc.ClientConnInterface) ScoringServiceClient {
 	return &scoringServiceClient{cc}
 }
 
-func (c *scoringServiceClient) GiveScore(ctx context.Context, in *GiveScoreRequest, opts ...grpc.CallOption) (*Score, error) {
+func (c *scoringServiceClient) GiveTeamScore(ctx context.Context, in *GiveTeamScoreRequest, opts ...grpc.CallOption) (*Score, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Score)
-	err := c.cc.Invoke(ctx, ScoringService_GiveScore_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, ScoringService_GiveTeamScore_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *scoringServiceClient) GiveIndividualScore(ctx context.Context, in *GiveIndividualScoreRequest, opts ...grpc.CallOption) (*Score, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Score)
+	err := c.cc.Invoke(ctx, ScoringService_GiveIndividualScore_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *scoringServiceClient) UpdateScore(ctx context.Context, in *UpdateScoreRequest, opts ...grpc.CallOption) (*Score, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Score)
+	err := c.cc.Invoke(ctx, ScoringService_UpdateScore_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *scoringServiceClient) DeleteScore(ctx context.Context, in *DeleteScoreRequest, opts ...grpc.CallOption) (*ScoringStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ScoringStatusResponse)
+	err := c.cc.Invoke(ctx, ScoringService_DeleteScore_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *scoringServiceClient) GetScoreById(ctx context.Context, in *GetScoreByIdRequest, opts ...grpc.CallOption) (*Score, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Score)
+	err := c.cc.Invoke(ctx, ScoringService_GetScoreById_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -85,6 +142,16 @@ func (c *scoringServiceClient) GetScoresByTeam(ctx context.Context, in *GetScore
 	return out, nil
 }
 
+func (c *scoringServiceClient) GetEventRanking(ctx context.Context, in *GetEventRankingRequest, opts ...grpc.CallOption) (*RankingList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RankingList)
+	err := c.cc.Invoke(ctx, ScoringService_GetEventRanking_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *scoringServiceClient) GetGlobalRanking(ctx context.Context, in *GetGlobalRankingRequest, opts ...grpc.CallOption) (*RankingList, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RankingList)
@@ -95,15 +162,36 @@ func (c *scoringServiceClient) GetGlobalRanking(ctx context.Context, in *GetGlob
 	return out, nil
 }
 
+func (c *scoringServiceClient) GetTeamRanking(ctx context.Context, in *GetTeamRankingRequest, opts ...grpc.CallOption) (*TeamRankingList, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TeamRankingList)
+	err := c.cc.Invoke(ctx, ScoringService_GetTeamRanking_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ScoringServiceServer is the server API for ScoringService service.
 // All implementations must embed UnimplementedScoringServiceServer
 // for forward compatibility
 type ScoringServiceServer interface {
-	GiveScore(context.Context, *GiveScoreRequest) (*Score, error)
+	// Team event uchun scoring
+	GiveTeamScore(context.Context, *GiveTeamScoreRequest) (*Score, error)
+	// Individual event uchun scoring
+	GiveIndividualScore(context.Context, *GiveIndividualScoreRequest) (*Score, error)
+	// Score management
+	UpdateScore(context.Context, *UpdateScoreRequest) (*Score, error)
+	DeleteScore(context.Context, *DeleteScoreRequest) (*ScoringStatusResponse, error)
+	// Score queries
+	GetScoreById(context.Context, *GetScoreByIdRequest) (*Score, error)
 	GetScoresByEvent(context.Context, *GetScoresByEventRequest) (*ScoreList, error)
 	GetScoresByUser(context.Context, *GetScoresByUserRequest) (*ScoreList, error)
 	GetScoresByTeam(context.Context, *GetScoresByTeamRequest) (*ScoreList, error)
+	// Rankings
+	GetEventRanking(context.Context, *GetEventRankingRequest) (*RankingList, error)
 	GetGlobalRanking(context.Context, *GetGlobalRankingRequest) (*RankingList, error)
+	GetTeamRanking(context.Context, *GetTeamRankingRequest) (*TeamRankingList, error)
 	mustEmbedUnimplementedScoringServiceServer()
 }
 
@@ -111,8 +199,20 @@ type ScoringServiceServer interface {
 type UnimplementedScoringServiceServer struct {
 }
 
-func (UnimplementedScoringServiceServer) GiveScore(context.Context, *GiveScoreRequest) (*Score, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GiveScore not implemented")
+func (UnimplementedScoringServiceServer) GiveTeamScore(context.Context, *GiveTeamScoreRequest) (*Score, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GiveTeamScore not implemented")
+}
+func (UnimplementedScoringServiceServer) GiveIndividualScore(context.Context, *GiveIndividualScoreRequest) (*Score, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GiveIndividualScore not implemented")
+}
+func (UnimplementedScoringServiceServer) UpdateScore(context.Context, *UpdateScoreRequest) (*Score, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateScore not implemented")
+}
+func (UnimplementedScoringServiceServer) DeleteScore(context.Context, *DeleteScoreRequest) (*ScoringStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteScore not implemented")
+}
+func (UnimplementedScoringServiceServer) GetScoreById(context.Context, *GetScoreByIdRequest) (*Score, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetScoreById not implemented")
 }
 func (UnimplementedScoringServiceServer) GetScoresByEvent(context.Context, *GetScoresByEventRequest) (*ScoreList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetScoresByEvent not implemented")
@@ -123,8 +223,14 @@ func (UnimplementedScoringServiceServer) GetScoresByUser(context.Context, *GetSc
 func (UnimplementedScoringServiceServer) GetScoresByTeam(context.Context, *GetScoresByTeamRequest) (*ScoreList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetScoresByTeam not implemented")
 }
+func (UnimplementedScoringServiceServer) GetEventRanking(context.Context, *GetEventRankingRequest) (*RankingList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEventRanking not implemented")
+}
 func (UnimplementedScoringServiceServer) GetGlobalRanking(context.Context, *GetGlobalRankingRequest) (*RankingList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetGlobalRanking not implemented")
+}
+func (UnimplementedScoringServiceServer) GetTeamRanking(context.Context, *GetTeamRankingRequest) (*TeamRankingList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTeamRanking not implemented")
 }
 func (UnimplementedScoringServiceServer) mustEmbedUnimplementedScoringServiceServer() {}
 
@@ -139,20 +245,92 @@ func RegisterScoringServiceServer(s grpc.ServiceRegistrar, srv ScoringServiceSer
 	s.RegisterService(&ScoringService_ServiceDesc, srv)
 }
 
-func _ScoringService_GiveScore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GiveScoreRequest)
+func _ScoringService_GiveTeamScore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GiveTeamScoreRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ScoringServiceServer).GiveScore(ctx, in)
+		return srv.(ScoringServiceServer).GiveTeamScore(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ScoringService_GiveScore_FullMethodName,
+		FullMethod: ScoringService_GiveTeamScore_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ScoringServiceServer).GiveScore(ctx, req.(*GiveScoreRequest))
+		return srv.(ScoringServiceServer).GiveTeamScore(ctx, req.(*GiveTeamScoreRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ScoringService_GiveIndividualScore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GiveIndividualScoreRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ScoringServiceServer).GiveIndividualScore(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ScoringService_GiveIndividualScore_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ScoringServiceServer).GiveIndividualScore(ctx, req.(*GiveIndividualScoreRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ScoringService_UpdateScore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateScoreRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ScoringServiceServer).UpdateScore(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ScoringService_UpdateScore_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ScoringServiceServer).UpdateScore(ctx, req.(*UpdateScoreRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ScoringService_DeleteScore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteScoreRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ScoringServiceServer).DeleteScore(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ScoringService_DeleteScore_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ScoringServiceServer).DeleteScore(ctx, req.(*DeleteScoreRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ScoringService_GetScoreById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetScoreByIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ScoringServiceServer).GetScoreById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ScoringService_GetScoreById_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ScoringServiceServer).GetScoreById(ctx, req.(*GetScoreByIdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -211,6 +389,24 @@ func _ScoringService_GetScoresByTeam_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ScoringService_GetEventRanking_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEventRankingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ScoringServiceServer).GetEventRanking(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ScoringService_GetEventRanking_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ScoringServiceServer).GetEventRanking(ctx, req.(*GetEventRankingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ScoringService_GetGlobalRanking_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetGlobalRankingRequest)
 	if err := dec(in); err != nil {
@@ -229,6 +425,24 @@ func _ScoringService_GetGlobalRanking_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ScoringService_GetTeamRanking_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTeamRankingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ScoringServiceServer).GetTeamRanking(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ScoringService_GetTeamRanking_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ScoringServiceServer).GetTeamRanking(ctx, req.(*GetTeamRankingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ScoringService_ServiceDesc is the grpc.ServiceDesc for ScoringService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -237,8 +451,24 @@ var ScoringService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ScoringServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GiveScore",
-			Handler:    _ScoringService_GiveScore_Handler,
+			MethodName: "GiveTeamScore",
+			Handler:    _ScoringService_GiveTeamScore_Handler,
+		},
+		{
+			MethodName: "GiveIndividualScore",
+			Handler:    _ScoringService_GiveIndividualScore_Handler,
+		},
+		{
+			MethodName: "UpdateScore",
+			Handler:    _ScoringService_UpdateScore_Handler,
+		},
+		{
+			MethodName: "DeleteScore",
+			Handler:    _ScoringService_DeleteScore_Handler,
+		},
+		{
+			MethodName: "GetScoreById",
+			Handler:    _ScoringService_GetScoreById_Handler,
 		},
 		{
 			MethodName: "GetScoresByEvent",
@@ -253,8 +483,16 @@ var ScoringService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ScoringService_GetScoresByTeam_Handler,
 		},
 		{
+			MethodName: "GetEventRanking",
+			Handler:    _ScoringService_GetEventRanking_Handler,
+		},
+		{
 			MethodName: "GetGlobalRanking",
 			Handler:    _ScoringService_GetGlobalRanking_Handler,
+		},
+		{
+			MethodName: "GetTeamRanking",
+			Handler:    _ScoringService_GetTeamRanking_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

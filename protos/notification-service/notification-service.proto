@@ -3,13 +3,23 @@ syntax="proto3";
 option go_package = "./genproto/notificationpb";
 
 service NotificationService {
-  rpc SendNotification (SendNotificationRequest) returns (SendNotificationResponse);
+  // Bildirishnoma yuborish
+  rpc SendNotification (SendNotificationRequest) returns (Notification);
+
+  // Bildirishnomalarni olish
+  rpc GetUserNotifications (GetUserNotificationsRequest) returns (NotificationList);
+  rpc GetNotificationById (GetNotificationByIdRequest) returns (Notification);
+
+  rpc DeleteNotification (DeleteNotificationRequest) returns (NotifStatusResponse);
 }
+
+// ================= ENUMS =================
 
 enum SenderType {
   SENDER_UNKNOWN = 0;
   SENDER_ADMIN = 1;
   SENDER_ORGANIZER = 2;
+  SENDER_SYSTEM = 3;           // Avtomatik xabarlar uchun
 }
 
 enum NotificationType {
@@ -17,31 +27,77 @@ enum NotificationType {
   SCORE_UPDATE = 1;
   TEAM_INVITE = 2;
   EVENT_UPDATE = 3;
-  GENERAL = 4; // oddiy e’lonlar uchun
+  EVENT_REMINDER = 4;          // Event boshlanishidan oldin
+  GENERAL = 5;                 // Oddiy e'lonlar uchun
 }
+
+// ================= MODELS =================
 
 message Notification {
   string id = 1;
   string sender_id = 2;
   SenderType sender_type = 3;
-  string user_id = 4;
-  bool is_public = 5;
+  string user_id = 4;          // Qaysi foydalanuvchiga yuborilgan
+  bool is_public = 5;          // Barcha foydalanuvchilarga ko'rinadimi
   string title = 6;
   string body = 7;
   NotificationType type = 8;
-  string created_at = 9;   // ISO format: 2025-11-18T17:45:00Z
+  bool is_read = 9;            // O'qilgan/o'qilmagan
+  string read_at = 10;         // O'qilgan vaqt
+  string created_at = 11;      // ISO format: 2025-11-18T17:45:00Z
+  
+  // Qo'shimcha metadata (optional)
+  string related_event_id = 12;  // Agar event bilan bog'liq bo'lsa
+  string related_team_id = 13;   // Agar team bilan bog'liq bo'lsa
+  string related_score_id = 14;  // Agar baho bilan bog'liq bo'lsa
 }
 
+// ================= REQUESTS =================
+
+// Bitta bildirishnoma yuborish
 message SendNotificationRequest {
-  string sender_id = 1;          // Kim yubordi (admin yoki organizer user_id)
-  SenderType sender_type = 2;    // ADMIN yoki ORGANIZER
-  string user_id = 3;            // Agar individual bo‘lsa — bitta foydalanuvchi ID
-  bool is_public = 4;            // True bo‘lsa — barchaga yuboriladi (public)
+  string sender_id = 1;          // Kim yubordi
+  SenderType sender_type = 2;    // ADMIN, ORGANIZER, yoki SYSTEM
+  string user_id = 3;            // Kimga yuboriladi (agar individual bo'lsa)
+  bool is_public = 4;            // True bo'lsa barchaga yuboriladi
   string title = 5;              // Xabar sarlavhasi
   string body = 6;               // Xabar matni
-  NotificationType type = 7;     // SCORE_UPDATE, TEAM_INVITE, SYSTEM va h.k.
+  NotificationType type = 7;
+  
+  // Optional metadata
+  string related_event_id = 8;
+  string related_team_id = 9;
+  string related_score_id = 10;
 }
 
-message SendNotificationResponse {
-  Notification notification = 1;
+// Foydalanuvchi bildirishnomalarini olish
+message GetUserNotificationsRequest {
+  string user_id = 1;
+  bool unread_only = 2;          // Faqat o'qilmaganlarni ko'rsatish
+  NotificationType type = 3;     // Type bo'yicha filter
+  int32 limit = 4;
+  int32 page = 5;
+}
+
+message GetNotificationByIdRequest {
+  string notification_id = 1;
+}
+
+// Bildirishnomani o'chirish
+message DeleteNotificationRequest {
+  string notification_id = 1;
+  string user_id = 2;
+}
+
+// ================= RESPONSES =================
+
+message NotificationList {
+  repeated Notification notifications = 1;
+  int32 total_count = 2;
+  int32 unread_count = 3;        // O'qilmaganlar soni
+}
+
+message NotifStatusResponse {
+  bool success = 1;
+  string message = 2;
 }

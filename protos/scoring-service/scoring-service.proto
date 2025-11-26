@@ -1,15 +1,30 @@
-syntax = "proto3";
+syntax="proto3";
 
 option go_package = "./genproto/scoringpb";
 
 // ================= SERVICE =================
 
 service ScoringService {
-  rpc GiveScore (GiveScoreRequest) returns (Score);
+  // Team event uchun scoring
+  rpc GiveTeamScore (GiveTeamScoreRequest) returns (Score);
+  
+  // Individual event uchun scoring
+  rpc GiveIndividualScore (GiveIndividualScoreRequest) returns (Score);
+  
+  // Score management
+  rpc UpdateScore (UpdateScoreRequest) returns (Score);
+  rpc DeleteScore (DeleteScoreRequest) returns (ScoringStatusResponse);
+  
+  // Score queries
+  rpc GetScoreById (GetScoreByIdRequest) returns (Score);
   rpc GetScoresByEvent (GetScoresByEventRequest) returns (ScoreList);
   rpc GetScoresByUser (GetScoresByUserRequest) returns (ScoreList);
   rpc GetScoresByTeam (GetScoresByTeamRequest) returns (ScoreList);
+  
+  // Rankings
+  rpc GetEventRanking (GetEventRankingRequest) returns (RankingList);
   rpc GetGlobalRanking (GetGlobalRankingRequest) returns (RankingList);
+  rpc GetTeamRanking (GetTeamRankingRequest) returns (TeamRankingList);
 }
 
 // ================= ENUMS =================
@@ -19,36 +34,73 @@ enum ScoredByType {
   ADMIN = 1;
 }
 
+enum ScoreType {
+  SCORE_TEAM = 0;
+  SCORE_INDIVIDUAL = 1;
+}
+
 // ================= MODELS =================
 
 message Score {
   string id = 1;
   string event_id = 2;
-  string team_id = 3;            // student qaysi teamda
-  string user_id = 4;            // kimga baho berilayapti
-  int32 points = 5;
-  string comment = 6;
-  string scored_by_id = 7;       // kim berdi
-  ScoredByType scored_by_type = 8;
-  string created_at = 9;
+  ScoreType score_type = 3;    // TEAM yoki INDIVIDUAL
+  string team_id = 4;          // Agar TEAM bo'lsa
+  string user_id = 5;          // Agar INDIVIDUAL bo'lsa
+  int32 points = 6;
+  string comment = 7;
+  string scored_by_id = 8;     // Kim baho berdi
+  ScoredByType scored_by_type = 9;
+  string created_at = 10;
+  string updated_at = 11;
 }
 
 // ================= REQUESTS =================
 
-message GiveScoreRequest {
+// Team uchun baho berish
+message GiveTeamScoreRequest {
   string event_id = 1;
   string team_id = 2;
-  string user_id = 3;            // har bir member uchun alohida yuboriladi
-  int32 points = 4;
-  string comment = 5;
-  string scored_by_id = 6;
-  ScoredByType scored_by_type = 7;
+  int32 points = 3;
+  string comment = 4;
+  string scored_by_id = 5;
+  ScoredByType scored_by_type = 6;
+}
+
+// Individual uchun baho berish
+message GiveIndividualScoreRequest {
+  string event_id = 1;
+  string user_id = 2;
+  int32 points = 3;
+  string comment = 4;
+  string scored_by_id = 5;
+  ScoredByType scored_by_type = 6;
+}
+
+// Baho yangilash
+message UpdateScoreRequest {
+  string score_id = 1;
+  int32 points = 2;
+  string comment = 3;
+  string updated_by_id = 4;    // Kim yangiladi
+}
+
+// Baho o'chirish
+message DeleteScoreRequest {
+  string score_id = 1;
+  string deleted_by_id = 2;    // Kim o'chirdi (admin yoki organizer)
+}
+
+// Score queries
+message GetScoreByIdRequest {
+  string score_id = 1;
 }
 
 message GetScoresByEventRequest {
   string event_id = 1;
-  int32 limit = 2;
-  int32 page = 3;
+  ScoreType score_type = 2;    // Filter: TEAM yoki INDIVIDUAL
+  int32 limit = 3;
+  int32 page = 4;
 }
 
 message GetScoresByUserRequest {
@@ -63,7 +115,22 @@ message GetScoresByTeamRequest {
   int32 page = 3;
 }
 
+// Event bo'yicha reyting
+message GetEventRankingRequest {
+  string event_id = 1;
+  ScoreType score_type = 2;    // TEAM yoki INDIVIDUAL
+  int32 limit = 3;
+  int32 page = 4;
+}
+
+// Global reyting (barcha eventlar)
 message GetGlobalRankingRequest {
+  int32 limit = 1;
+  int32 page = 2;
+}
+
+// Team reytingi (team eventlardan)
+message GetTeamRankingRequest {
   int32 limit = 1;
   int32 page = 2;
 }
@@ -75,14 +142,38 @@ message ScoreList {
   int32 total_count = 2;
 }
 
+// Individual student reytingi
 message Ranking {
   string user_id = 1;
   string user_name = 2;
-  int32 total_points = 3;
-  int32 rank = 4;
+  string faculty = 3;
+  int32 course = 4;
+  int32 total_points = 5;
+  int32 event_count = 6;       // Nechta eventda ishtirok etgan
+  int32 rank = 7;
 }
 
 message RankingList {
   repeated Ranking rankings = 1;
   int32 total_count = 2;
+}
+
+// Team reytingi
+message TeamRanking {
+  string team_id = 1;
+  string team_name = 2;
+  string leader_name = 3;
+  int32 total_points = 4;
+  int32 event_count = 5;       // Nechta team eventda ishtirok etgan
+  int32 rank = 6;
+}
+
+message TeamRankingList {
+  repeated TeamRanking rankings = 1;
+  int32 total_count = 2;
+}
+
+message ScoringStatusResponse {
+  bool success = 1;
+  string message = 2;
 }

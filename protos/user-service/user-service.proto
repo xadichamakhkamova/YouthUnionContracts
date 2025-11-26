@@ -4,7 +4,7 @@ option go_package = "./genproto/userpb";
 
 service UserService {
     rpc CreateUser (CreateUserRequest) returns (User);
-    rpc GetUserByIdentifier(GetUserByIdentifierRequest) returns (GetUserByIdentifierResponse);
+    rpc GetUserByIdentifier(GetUserByIdentifierRequest) returns (LoginResponse);
     rpc GetUserById (GetUserByIdRequest) returns (User);
     rpc UpdateUser (UpdateUserRequest) returns (User);
     rpc ListUsers (ListUsersRequest) returns (UserList);
@@ -15,18 +15,19 @@ service UserService {
     rpc CreateRole (CreateRoleRequest) returns (RoleType);
     rpc GetRoleById (GetRoleByIdRequest) returns (RoleType);
     rpc UpdateRole (UpdateRoleRequest) returns (RoleType);
-    rpc DeleteRole (DeleteRoleRequest) returns (DeleteRoleResponse);
+    rpc DeleteRole (DeleteRoleRequest) returns (StatusResponse);
     rpc ListRoles (ListRolesRequest) returns (RoleTypeList);
 
     // User Roles CRUD (Admin tomonidan)
     rpc AssignRoleToUser (AssignRoleRequest) returns (UserRole);
-    rpc RemoveRoleFromUser (RemoveRoleRequest) returns (RemoveRoleResponse);
+    rpc RemoveRoleFromUser (RemoveRoleRequest) returns (StatusResponse);
     rpc ListUserRoles (ListUserRolesRequest) returns (UserRoleList);
 }
   
 service UserSessionService {
     rpc CreateSession (CreateSessionRequest) returns (UserSession);
     rpc GetSessionByToken (GetSessionByTokenRequest) returns (UserSession);
+    rpc DeleteSession (DeleteSessionRequest) returns (StatusResponse);
 }
 
 message User {
@@ -38,7 +39,7 @@ message User {
     string faculty = 6;
     int32 course = 7;
     string birth_date = 8;                    // YYYY-MM-DD formatda
-    string gender = 9;                       // MALE / FEMALE
+    string gender = 9;                        // MALE / FEMALE
     string created_at = 10;
     string updated_at = 11;
 }
@@ -68,9 +69,11 @@ message GetUserByIdentifierRequest {
     string password = 2;
 }
 
-message GetUserByIdentifierResponse {
-    string id = 1;
-    int32 identifier = 2;
+// Login response - to'liq user ma'lumoti va token
+message LoginResponse {
+    User user = 1;
+    string access_token = 2;
+    string refresh_token = 3;
 }
 
 message GetUserByIdRequest {
@@ -95,13 +98,17 @@ message ChangePasswordRequest {
 }
 
 message ChangePasswordResponse {
-    int32 status = 1;          
-    string updated_at = 2;      
+    bool success = 1;
+    string message = 2;
+    string updated_at = 3;
 }
 
 message ListUsersRequest {
-    int32 page = 1;
-    int32 limit = 2;
+    string search = 1;  // ism, familiya yoki identifier bo'yicha qidirish
+    string faculty = 2; // fakultet bo'yicha filter
+    int32 course = 3;   // kurs bo'yicha filter
+    int32 page = 4;
+    int32 limit = 5;
 }
 
 message UserList {
@@ -114,9 +121,10 @@ message DeleteUserRequest {
 }
 
 message DeleteUserResponse {
-    int32 status = 1;     
-    string deleted_user_id = 2; 
-    string deleted_at = 3;  
+    bool success = 1;
+    string message = 2;
+    string deleted_user_id = 3;
+    string deleted_at = 4;
 }
 
 // User Session Service
@@ -130,7 +138,11 @@ message GetSessionByTokenRequest {
     string refresh_token = 1;
 }
 
-//Roles 
+message DeleteSessionRequest {
+    string refresh_token = 1;
+}
+
+// Roles 
 message RoleType {
     string id = 1;
     string name = 2;          // ADMIN, ORGANIZER, STUDENT
@@ -158,12 +170,6 @@ message DeleteRoleRequest {
     string id = 1;
 }
 
-message DeleteRoleResponse {
-    int32 status = 1;
-    string deleted_role_id = 2;
-    string deleted_at = 3;
-}
-
 message ListRolesRequest {
     int32 page = 1;
     int32 limit = 2;
@@ -178,8 +184,9 @@ message RoleTypeList {
 message UserRole {
     string id = 1;
     string user_id = 2;
-    string role_name = 3;
-    string assigned_at = 4;
+    string role_id = 3;
+    string role_name = 4;
+    string assigned_at = 5;
 }
 
 message AssignRoleRequest {
@@ -188,13 +195,7 @@ message AssignRoleRequest {
 }
 
 message RemoveRoleRequest {
-    string id = 1;
-}
-
-message RemoveRoleResponse {
-    int32 status = 1;
-    string removed_role_id = 2;
-    string removed_at = 3;
+    string user_role_id = 1;
 }
 
 message ListUserRolesRequest {
@@ -206,4 +207,10 @@ message ListUserRolesRequest {
 message UserRoleList {
     repeated UserRole user_roles = 1;
     int32 total_count = 2;
+}
+
+// Umumiy status response
+message StatusResponse {
+    bool success = 1;
+    string message = 2;
 }

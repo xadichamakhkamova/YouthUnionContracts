@@ -5,17 +5,24 @@ option go_package = "./genproto/eventpb";
 // ================= SERVICE =================
 
 service EventService {
-    // CRUD
+  // Event CRUD
   rpc CreateEvent(CreateEventRequest) returns (Event);
   rpc UpdateEvent(UpdateEventRequest) returns (Event);
   rpc GetEvent(GetEventRequest) returns (Event);
   rpc ListEvents(ListEventsRequest) returns (ListEventsResponse);
-  rpc DeleteEvent(DeleteEventRequest) returns (DeleteEventResponse);
+  rpc DeleteEvent(DeleteEventRequest) returns (EventStatusResponse);
 
-  // REGISTRATION
+  // Event Registration (Individual events uchun)
   rpc RegisterEvent(RegisterEventRequest) returns (EventParticipant);
-  rpc RegisterTeamEvent(RegisterTeamEventRequest) returns (EventParticipant);
-  rpc ListParticipants(EventParticipantRequest) returns (EventParticipantResponse);
+  rpc UnregisterEvent(UnregisterEventRequest) returns (EventStatusResponse);
+  
+  // Participants management
+  rpc ListParticipants(ListParticipantsRequest) returns (ParticipantListResponse);
+  rpc GetParticipantById(GetParticipantByIdRequest) returns (EventParticipant);
+  rpc CheckUserRegistration(CheckUserRegistrationRequest) returns (RegistrationStatusResponse);
+  
+  // Event statistics
+  rpc GetEventStats(GetEventStatsRequest) returns (EventStatsResponse);
 }
   
 // ================= ENUMS =================
@@ -28,9 +35,10 @@ enum EventType {
 
 enum EventStatus {
   STATUS_UNSPECIFIED = 0;
-  ACTIVE = 1;
-  CANCELLED = 2;
-  FINISHED = 3;
+  UPCOMING = 1;              // Yangi nom: hali boshlanmagan
+  ACTIVE = 2;                // Hozir davom etayotgan
+  FINISHED = 3;              // Yakunlangan
+  CANCELLED = 4;             // Bekor qilingan
 }
 
 // ================= MODELS =================
@@ -41,26 +49,31 @@ message Event {
   string title = 3;
   string description = 4;
   string location = 5;
-  string start_time = 6;
-  string end_time = 7;
-  string created_by = 8; // User Service ID
-  int32 max_participants = 9;
+  string start_time = 6;         // ISO 8601 format
+  string end_time = 7;           // ISO 8601 format
+  string created_by = 8;         // User Service ID (organizer yoki admin)
+  int32 max_participants = 9;    // Individual uchun: foydalanuvchilar, Team uchun: teamlar
   int32 current_participants = 10;
-  EventStatus status = 11;
-  string created_at = 12;
-  string updated_at = 13;
+  int32 min_team_size = 11;      // Team event uchun: minimal a'zolar soni
+  int32 max_team_size = 12;      // Team event uchun: maksimal a'zolar soni
+  EventStatus status = 13;
+  string poster_url = 14;        // Event posteri (image URL)
+  repeated string tags = 15;     // Event teglari (sport, tech, art, etc.)
+  string created_at = 16;
+  string updated_at = 17;
 }
 
 message EventParticipant {
   string id = 1;
   string event_id = 2;
-  string user_id = 3;
-  string role = 4;
+  string user_id = 3;            // Individual event: student ID
+  string team_id = 4;            // Team event: team ID
   string joined_at = 5;
 }
 
 // ================= REQUESTS =================
 
+// Event CRUD
 message CreateEventRequest {
   EventType event_type = 1;
   string title = 2;
@@ -70,6 +83,10 @@ message CreateEventRequest {
   string end_time = 6;
   string created_by = 7;
   int32 max_participants = 8;
+  int32 min_team_size = 9;       // Faqat team event uchun
+  int32 max_team_size = 10;      // Faqat team event uchun
+  string poster_url = 11;
+  repeated string tags = 12;
 }
 
 message UpdateEventRequest {
@@ -80,7 +97,11 @@ message UpdateEventRequest {
   string start_time = 5;
   string end_time = 6;
   int32 max_participants = 7;
-  EventStatus status = 8;
+  int32 min_team_size = 8;
+  int32 max_team_size = 9;
+  EventStatus status = 10;
+  string poster_url = 11;
+  repeated string tags = 12;
 }
 
 message GetEventRequest {
@@ -88,45 +109,81 @@ message GetEventRequest {
 }
 
 message ListEventsRequest {
-  string search = 1;  //name
-  EventType event_type = 2;
-  EventStatus status = 3;
-  int32 limit = 4;
-  int32 page = 5;
-} 
+  string search = 1;             // title yoki description bo'yicha qidirish
+  EventType event_type = 2;      // Filter: INDIVIDUAL yoki TEAM
+  EventStatus status = 3;        // Filter: UPCOMING, ACTIVE, FINISHED, CANCELLED
+  repeated string tags = 4;      // Tag bo'yicha filter
+  string created_by = 5;         // Muayyan organizer eventlari
+  int32 limit = 6;
+  int32 page = 7;
+}
+
+message DeleteEventRequest {
+  string id = 1;
+  string deleted_by = 2;         // Kim o'chirdi (admin yoki event yaratuvchi)
+}
+
+// Event Registration (faqat Individual event uchun)
+message RegisterEventRequest {
+  string event_id = 1;
+  string user_id = 2;
+}
+
+message UnregisterEventRequest {
+  string event_id = 1;
+  string user_id = 2;            // Individual uchun
+  string team_id = 3;            // Team uchun
+}
+
+// Participants
+message ListParticipantsRequest {
+  string event_id = 1;
+  int32 limit = 2;
+  int32 page = 3;
+}
+
+message GetParticipantByIdRequest {
+  string participant_id = 1;
+}
+
+// Foydalanuvchi ro'yxatdan o'tganligini tekshirish
+message CheckUserRegistrationRequest {
+  string event_id = 1;
+  string user_id = 2;
+}
+
+// Event statistikasi
+message GetEventStatsRequest {
+  string event_id = 1;
+}
+
+// ================= RESPONSES =================
 
 message ListEventsResponse {
   repeated Event events = 1;
   int32 total_count = 2;
 }
 
-message DeleteEventRequest {
-  string id = 1;
-}
-
-message DeleteEventResponse {
-    int32 status = 1;
-}
-
-// ========== EVENT REGISTRATION ==========
-
-message RegisterEventRequest {
-  string event_id = 1;
-  string user_id = 2; // yoki team leader id
-}
-
-message RegisterTeamEventRequest {
-  string event_id = 1;
-  string team_id = 2; // agar event_type = TEAM
-}
-
-message EventParticipantRequest {
-  string event_id = 1;
-  int32 limit = 2;
-  int32 page = 3;
-}
-message EventParticipantResponse {
+message ParticipantListResponse {
   repeated EventParticipant participants = 1;
   int32 total_count = 2;
 }
 
+message RegistrationStatusResponse {
+  bool is_registered = 1;
+  string participant_id = 2;     // Agar ro'yxatdan o'tgan bo'lsa
+  string joined_at = 3;
+}
+
+message EventStatsResponse {
+  string event_id = 1;
+  int32 total_participants = 2;
+  int32 total_teams = 3;         // Team event uchun
+  int32 available_spots = 4;     // Qolgan joylar
+  bool is_full = 5;              // To'lgan/to'lmagan
+}
+
+message EventStatusResponse {
+  bool success = 1;
+  string message = 2;
+} 

@@ -19,30 +19,38 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	EventService_CreateEvent_FullMethodName       = "/EventService/CreateEvent"
-	EventService_UpdateEvent_FullMethodName       = "/EventService/UpdateEvent"
-	EventService_GetEvent_FullMethodName          = "/EventService/GetEvent"
-	EventService_ListEvents_FullMethodName        = "/EventService/ListEvents"
-	EventService_DeleteEvent_FullMethodName       = "/EventService/DeleteEvent"
-	EventService_RegisterEvent_FullMethodName     = "/EventService/RegisterEvent"
-	EventService_RegisterTeamEvent_FullMethodName = "/EventService/RegisterTeamEvent"
-	EventService_ListParticipants_FullMethodName  = "/EventService/ListParticipants"
+	EventService_CreateEvent_FullMethodName           = "/EventService/CreateEvent"
+	EventService_UpdateEvent_FullMethodName           = "/EventService/UpdateEvent"
+	EventService_GetEvent_FullMethodName              = "/EventService/GetEvent"
+	EventService_ListEvents_FullMethodName            = "/EventService/ListEvents"
+	EventService_DeleteEvent_FullMethodName           = "/EventService/DeleteEvent"
+	EventService_RegisterEvent_FullMethodName         = "/EventService/RegisterEvent"
+	EventService_UnregisterEvent_FullMethodName       = "/EventService/UnregisterEvent"
+	EventService_ListParticipants_FullMethodName      = "/EventService/ListParticipants"
+	EventService_GetParticipantById_FullMethodName    = "/EventService/GetParticipantById"
+	EventService_CheckUserRegistration_FullMethodName = "/EventService/CheckUserRegistration"
+	EventService_GetEventStats_FullMethodName         = "/EventService/GetEventStats"
 )
 
 // EventServiceClient is the client API for EventService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type EventServiceClient interface {
-	// CRUD
+	// Event CRUD
 	CreateEvent(ctx context.Context, in *CreateEventRequest, opts ...grpc.CallOption) (*Event, error)
 	UpdateEvent(ctx context.Context, in *UpdateEventRequest, opts ...grpc.CallOption) (*Event, error)
 	GetEvent(ctx context.Context, in *GetEventRequest, opts ...grpc.CallOption) (*Event, error)
 	ListEvents(ctx context.Context, in *ListEventsRequest, opts ...grpc.CallOption) (*ListEventsResponse, error)
-	DeleteEvent(ctx context.Context, in *DeleteEventRequest, opts ...grpc.CallOption) (*DeleteEventResponse, error)
-	// REGISTRATION
+	DeleteEvent(ctx context.Context, in *DeleteEventRequest, opts ...grpc.CallOption) (*EventStatusResponse, error)
+	// Event Registration (Individual events uchun)
 	RegisterEvent(ctx context.Context, in *RegisterEventRequest, opts ...grpc.CallOption) (*EventParticipant, error)
-	RegisterTeamEvent(ctx context.Context, in *RegisterTeamEventRequest, opts ...grpc.CallOption) (*EventParticipant, error)
-	ListParticipants(ctx context.Context, in *EventParticipantRequest, opts ...grpc.CallOption) (*EventParticipantResponse, error)
+	UnregisterEvent(ctx context.Context, in *UnregisterEventRequest, opts ...grpc.CallOption) (*EventStatusResponse, error)
+	// Participants management
+	ListParticipants(ctx context.Context, in *ListParticipantsRequest, opts ...grpc.CallOption) (*ParticipantListResponse, error)
+	GetParticipantById(ctx context.Context, in *GetParticipantByIdRequest, opts ...grpc.CallOption) (*EventParticipant, error)
+	CheckUserRegistration(ctx context.Context, in *CheckUserRegistrationRequest, opts ...grpc.CallOption) (*RegistrationStatusResponse, error)
+	// Event statistics
+	GetEventStats(ctx context.Context, in *GetEventStatsRequest, opts ...grpc.CallOption) (*EventStatsResponse, error)
 }
 
 type eventServiceClient struct {
@@ -93,9 +101,9 @@ func (c *eventServiceClient) ListEvents(ctx context.Context, in *ListEventsReque
 	return out, nil
 }
 
-func (c *eventServiceClient) DeleteEvent(ctx context.Context, in *DeleteEventRequest, opts ...grpc.CallOption) (*DeleteEventResponse, error) {
+func (c *eventServiceClient) DeleteEvent(ctx context.Context, in *DeleteEventRequest, opts ...grpc.CallOption) (*EventStatusResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeleteEventResponse)
+	out := new(EventStatusResponse)
 	err := c.cc.Invoke(ctx, EventService_DeleteEvent_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -113,20 +121,50 @@ func (c *eventServiceClient) RegisterEvent(ctx context.Context, in *RegisterEven
 	return out, nil
 }
 
-func (c *eventServiceClient) RegisterTeamEvent(ctx context.Context, in *RegisterTeamEventRequest, opts ...grpc.CallOption) (*EventParticipant, error) {
+func (c *eventServiceClient) UnregisterEvent(ctx context.Context, in *UnregisterEventRequest, opts ...grpc.CallOption) (*EventStatusResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(EventParticipant)
-	err := c.cc.Invoke(ctx, EventService_RegisterTeamEvent_FullMethodName, in, out, cOpts...)
+	out := new(EventStatusResponse)
+	err := c.cc.Invoke(ctx, EventService_UnregisterEvent_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *eventServiceClient) ListParticipants(ctx context.Context, in *EventParticipantRequest, opts ...grpc.CallOption) (*EventParticipantResponse, error) {
+func (c *eventServiceClient) ListParticipants(ctx context.Context, in *ListParticipantsRequest, opts ...grpc.CallOption) (*ParticipantListResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(EventParticipantResponse)
+	out := new(ParticipantListResponse)
 	err := c.cc.Invoke(ctx, EventService_ListParticipants_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *eventServiceClient) GetParticipantById(ctx context.Context, in *GetParticipantByIdRequest, opts ...grpc.CallOption) (*EventParticipant, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(EventParticipant)
+	err := c.cc.Invoke(ctx, EventService_GetParticipantById_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *eventServiceClient) CheckUserRegistration(ctx context.Context, in *CheckUserRegistrationRequest, opts ...grpc.CallOption) (*RegistrationStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RegistrationStatusResponse)
+	err := c.cc.Invoke(ctx, EventService_CheckUserRegistration_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *eventServiceClient) GetEventStats(ctx context.Context, in *GetEventStatsRequest, opts ...grpc.CallOption) (*EventStatsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(EventStatsResponse)
+	err := c.cc.Invoke(ctx, EventService_GetEventStats_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -137,16 +175,21 @@ func (c *eventServiceClient) ListParticipants(ctx context.Context, in *EventPart
 // All implementations must embed UnimplementedEventServiceServer
 // for forward compatibility
 type EventServiceServer interface {
-	// CRUD
+	// Event CRUD
 	CreateEvent(context.Context, *CreateEventRequest) (*Event, error)
 	UpdateEvent(context.Context, *UpdateEventRequest) (*Event, error)
 	GetEvent(context.Context, *GetEventRequest) (*Event, error)
 	ListEvents(context.Context, *ListEventsRequest) (*ListEventsResponse, error)
-	DeleteEvent(context.Context, *DeleteEventRequest) (*DeleteEventResponse, error)
-	// REGISTRATION
+	DeleteEvent(context.Context, *DeleteEventRequest) (*EventStatusResponse, error)
+	// Event Registration (Individual events uchun)
 	RegisterEvent(context.Context, *RegisterEventRequest) (*EventParticipant, error)
-	RegisterTeamEvent(context.Context, *RegisterTeamEventRequest) (*EventParticipant, error)
-	ListParticipants(context.Context, *EventParticipantRequest) (*EventParticipantResponse, error)
+	UnregisterEvent(context.Context, *UnregisterEventRequest) (*EventStatusResponse, error)
+	// Participants management
+	ListParticipants(context.Context, *ListParticipantsRequest) (*ParticipantListResponse, error)
+	GetParticipantById(context.Context, *GetParticipantByIdRequest) (*EventParticipant, error)
+	CheckUserRegistration(context.Context, *CheckUserRegistrationRequest) (*RegistrationStatusResponse, error)
+	// Event statistics
+	GetEventStats(context.Context, *GetEventStatsRequest) (*EventStatsResponse, error)
 	mustEmbedUnimplementedEventServiceServer()
 }
 
@@ -166,17 +209,26 @@ func (UnimplementedEventServiceServer) GetEvent(context.Context, *GetEventReques
 func (UnimplementedEventServiceServer) ListEvents(context.Context, *ListEventsRequest) (*ListEventsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListEvents not implemented")
 }
-func (UnimplementedEventServiceServer) DeleteEvent(context.Context, *DeleteEventRequest) (*DeleteEventResponse, error) {
+func (UnimplementedEventServiceServer) DeleteEvent(context.Context, *DeleteEventRequest) (*EventStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteEvent not implemented")
 }
 func (UnimplementedEventServiceServer) RegisterEvent(context.Context, *RegisterEventRequest) (*EventParticipant, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterEvent not implemented")
 }
-func (UnimplementedEventServiceServer) RegisterTeamEvent(context.Context, *RegisterTeamEventRequest) (*EventParticipant, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RegisterTeamEvent not implemented")
+func (UnimplementedEventServiceServer) UnregisterEvent(context.Context, *UnregisterEventRequest) (*EventStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnregisterEvent not implemented")
 }
-func (UnimplementedEventServiceServer) ListParticipants(context.Context, *EventParticipantRequest) (*EventParticipantResponse, error) {
+func (UnimplementedEventServiceServer) ListParticipants(context.Context, *ListParticipantsRequest) (*ParticipantListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListParticipants not implemented")
+}
+func (UnimplementedEventServiceServer) GetParticipantById(context.Context, *GetParticipantByIdRequest) (*EventParticipant, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetParticipantById not implemented")
+}
+func (UnimplementedEventServiceServer) CheckUserRegistration(context.Context, *CheckUserRegistrationRequest) (*RegistrationStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckUserRegistration not implemented")
+}
+func (UnimplementedEventServiceServer) GetEventStats(context.Context, *GetEventStatsRequest) (*EventStatsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEventStats not implemented")
 }
 func (UnimplementedEventServiceServer) mustEmbedUnimplementedEventServiceServer() {}
 
@@ -299,26 +351,26 @@ func _EventService_RegisterEvent_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _EventService_RegisterTeamEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RegisterTeamEventRequest)
+func _EventService_UnregisterEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnregisterEventRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(EventServiceServer).RegisterTeamEvent(ctx, in)
+		return srv.(EventServiceServer).UnregisterEvent(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: EventService_RegisterTeamEvent_FullMethodName,
+		FullMethod: EventService_UnregisterEvent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EventServiceServer).RegisterTeamEvent(ctx, req.(*RegisterTeamEventRequest))
+		return srv.(EventServiceServer).UnregisterEvent(ctx, req.(*UnregisterEventRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _EventService_ListParticipants_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(EventParticipantRequest)
+	in := new(ListParticipantsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -330,7 +382,61 @@ func _EventService_ListParticipants_Handler(srv interface{}, ctx context.Context
 		FullMethod: EventService_ListParticipants_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EventServiceServer).ListParticipants(ctx, req.(*EventParticipantRequest))
+		return srv.(EventServiceServer).ListParticipants(ctx, req.(*ListParticipantsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EventService_GetParticipantById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetParticipantByIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).GetParticipantById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EventService_GetParticipantById_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).GetParticipantById(ctx, req.(*GetParticipantByIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EventService_CheckUserRegistration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckUserRegistrationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).CheckUserRegistration(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EventService_CheckUserRegistration_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).CheckUserRegistration(ctx, req.(*CheckUserRegistrationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EventService_GetEventStats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEventStatsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).GetEventStats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EventService_GetEventStats_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).GetEventStats(ctx, req.(*GetEventStatsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -367,12 +473,24 @@ var EventService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _EventService_RegisterEvent_Handler,
 		},
 		{
-			MethodName: "RegisterTeamEvent",
-			Handler:    _EventService_RegisterTeamEvent_Handler,
+			MethodName: "UnregisterEvent",
+			Handler:    _EventService_UnregisterEvent_Handler,
 		},
 		{
 			MethodName: "ListParticipants",
 			Handler:    _EventService_ListParticipants_Handler,
+		},
+		{
+			MethodName: "GetParticipantById",
+			Handler:    _EventService_GetParticipantById_Handler,
+		},
+		{
+			MethodName: "CheckUserRegistration",
+			Handler:    _EventService_CheckUserRegistration_Handler,
+		},
+		{
+			MethodName: "GetEventStats",
+			Handler:    _EventService_GetEventStats_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

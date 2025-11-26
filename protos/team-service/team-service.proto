@@ -1,4 +1,4 @@
-syntax = "proto3";
+syntax="proto3";
 
 option go_package = "./genproto/teampb";
 
@@ -7,15 +7,21 @@ option go_package = "./genproto/teampb";
 service TeamService {
   // --- Team CRUD ---
   rpc CreateTeam (CreateTeamRequest) returns (Team);
+  rpc GetTeamById (GetTeamByIdRequest) returns (Team);
   rpc UpdateTeam (UpdateTeamRequest) returns (Team);
+  rpc DeleteTeam (DeleteTeamRequest) returns (TeamStatusResponse);
   rpc GetTeamsByEvent (GetTeamsByEventRequest) returns (TeamList);
-  rpc RemoveTeamMember (RemoveTeamMemberRequest) returns (StatusResponse);
+  
+  // --- Team Member Management ---
+  rpc AddTeamMember (AddTeamMemberRequest) returns (TeamMember);
+  rpc RemoveTeamMember (RemoveTeamMemberRequest) returns (TeamStatusResponse);
+  rpc GetTeamMembers (GetTeamMembersRequest) returns (MemberList);
 
-  // --- Membership & Invitations ---
-  rpc InviteMember (InviteMemberRequest) returns (InvitationsResponse);
-  rpc RespondInvite (RespondInviteRequest) returns (InvitationsResponse);
-
-  rpc GetTeamMembers (GetTeamRequest) returns (MemberList);
+  // --- Invitations ---
+  rpc InviteMember (InviteMemberRequest) returns (Invitation);
+  rpc RespondInvite (RespondInviteRequest) returns (Invitation);
+  rpc GetTeamInvitations (GetTeamInvitationsRequest) returns (InvitationList);
+  rpc CancelInvitation (CancelInvitationRequest) returns (TeamStatusResponse);
 }
   
 
@@ -29,24 +35,38 @@ enum InviteStatus {
   PENDING = 0;
   ACCEPTED = 1;
   REJECTED = 2;
+  INVITE_CANCELLED = 3;
 }
+
 // ================= MODELS =================
 message Team {
   string id = 1;
   string name = 2;
-  string leader_id = 3; // UserService dagi foydalanuvchi ID
-  string event_id = 4;  // EventService dagi event ID
-  bool is_ready = 5;
-  string created_at = 6;
-  string updated_at = 7;
+  string leader_id = 3;        // UserService dagi foydalanuvchi ID
+  string event_id = 4;         // EventService dagi event ID
+  bool is_ready = 5;           // Jamoa tayyor (to'liq va tasdiqlangan)
+  int32 member_count = 6;      // Hozirgi a'zolar soni
+  int32 max_members = 7;       // Maksimal a'zolar soni (event dan olinadi)
+  string created_at = 8;
+  string updated_at = 9;
 }
 
 message TeamMember {
   string id = 1;
   string team_id = 2;
-  string user_id = 3; // UserService dagi foydalanuvchi ID
+  string user_id = 3;          // UserService dagi foydalanuvchi ID
   MemberRole role = 4;
   string joined_at = 5;
+}
+
+message Invitation {
+  string id = 1;
+  string team_id = 2;
+  string inviter_id = 3;       // Kim taklif qildi
+  string invited_user_id = 4;  // Kimga taklif qilindi
+  InviteStatus status = 5;
+  string created_at = 6;
+  string responded_at = 7;     // Javob berilgan vaqt
 }
 
 // ================= REQUESTS =================
@@ -58,13 +78,19 @@ message CreateTeamRequest {
   string event_id = 3;
 }
 
+message GetTeamByIdRequest {
+  string team_id = 1;
+}
+
 message UpdateTeamRequest {
   string id = 1;
   string name = 2;
+  bool is_ready = 3;           // Jamoa tayyorligini yangilash
 }
 
-message GetTeamRequest {
+message DeleteTeamRequest {
   string team_id = 1;
+  string leader_id = 2;        // Faqat leader o'chirishi mumkin
 }
 
 message GetTeamsByEventRequest {
@@ -73,22 +99,48 @@ message GetTeamsByEventRequest {
   int32 page = 3;
 }
 
+// --- Team Members ---
+message AddTeamMemberRequest {
+  string team_id = 1;
+  string user_id = 2;
+  string added_by = 3;         // Leader ID
+}
+
 message RemoveTeamMemberRequest {
   string team_id = 1;
   string user_id = 2;
+  string removed_by = 3;       // Leader ID
 }
 
-// --- Invitations & Membership ---
+message GetTeamMembersRequest {
+  string team_id = 1;
+  int32 limit = 2;
+  int32 page = 3;
+}
+
+// --- Invitations ---
 message InviteMemberRequest {
   string team_id = 1;
-  string inviter_id = 2; // kim yubordi (odatda leader)
+  string inviter_id = 2;       // Kim yubordi (odatda leader)
   string invited_user_id = 3;
 }
 
 message RespondInviteRequest {
-  string team_id = 1;
+  string invitation_id = 1;
   string invited_user_id = 2;
-  InviteStatus status = 3; // accepted/rejected
+  InviteStatus status = 3;     // ACCEPTED yoki REJECTED
+}
+
+message GetTeamInvitationsRequest {
+  string team_id = 1;
+  InviteStatus status = 2;
+  int32 limit = 3;
+  int32 page = 4;
+}
+
+message CancelInvitationRequest {
+  string invitation_id = 1;
+  string inviter_id = 2;       // Faqat taklif qilgan kishi bekor qilishi mumkin
 }
 
 // ================= RESPONSES =================
@@ -103,16 +155,12 @@ message MemberList {
   int32 total_count = 2;
 }
 
-message StatusResponse {
-  int32 status = 1;
+message InvitationList {
+  repeated Invitation invitations = 1;
+  int32 total_count = 2;
 }
 
-message InvitationsResponse {
-  string id = 1;
-  string team_id = 2;
-  string inviter_id = 3; 
-  string invited_user_id = 4;
-  string status = 5;
-  string created_at = 6;
-  string responded_at = 7;
+message TeamStatusResponse {
+  bool success = 1;
+  string message = 2;
 }

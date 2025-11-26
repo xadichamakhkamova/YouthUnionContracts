@@ -41,7 +41,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*User, error)
-	GetUserByIdentifier(ctx context.Context, in *GetUserByIdentifierRequest, opts ...grpc.CallOption) (*GetUserByIdentifierResponse, error)
+	GetUserByIdentifier(ctx context.Context, in *GetUserByIdentifierRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	GetUserById(ctx context.Context, in *GetUserByIdRequest, opts ...grpc.CallOption) (*User, error)
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*User, error)
 	ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*UserList, error)
@@ -51,11 +51,11 @@ type UserServiceClient interface {
 	CreateRole(ctx context.Context, in *CreateRoleRequest, opts ...grpc.CallOption) (*RoleType, error)
 	GetRoleById(ctx context.Context, in *GetRoleByIdRequest, opts ...grpc.CallOption) (*RoleType, error)
 	UpdateRole(ctx context.Context, in *UpdateRoleRequest, opts ...grpc.CallOption) (*RoleType, error)
-	DeleteRole(ctx context.Context, in *DeleteRoleRequest, opts ...grpc.CallOption) (*DeleteRoleResponse, error)
+	DeleteRole(ctx context.Context, in *DeleteRoleRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 	ListRoles(ctx context.Context, in *ListRolesRequest, opts ...grpc.CallOption) (*RoleTypeList, error)
 	// User Roles CRUD (Admin tomonidan)
 	AssignRoleToUser(ctx context.Context, in *AssignRoleRequest, opts ...grpc.CallOption) (*UserRole, error)
-	RemoveRoleFromUser(ctx context.Context, in *RemoveRoleRequest, opts ...grpc.CallOption) (*RemoveRoleResponse, error)
+	RemoveRoleFromUser(ctx context.Context, in *RemoveRoleRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 	ListUserRoles(ctx context.Context, in *ListUserRolesRequest, opts ...grpc.CallOption) (*UserRoleList, error)
 }
 
@@ -77,9 +77,9 @@ func (c *userServiceClient) CreateUser(ctx context.Context, in *CreateUserReques
 	return out, nil
 }
 
-func (c *userServiceClient) GetUserByIdentifier(ctx context.Context, in *GetUserByIdentifierRequest, opts ...grpc.CallOption) (*GetUserByIdentifierResponse, error) {
+func (c *userServiceClient) GetUserByIdentifier(ctx context.Context, in *GetUserByIdentifierRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetUserByIdentifierResponse)
+	out := new(LoginResponse)
 	err := c.cc.Invoke(ctx, UserService_GetUserByIdentifier_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -167,9 +167,9 @@ func (c *userServiceClient) UpdateRole(ctx context.Context, in *UpdateRoleReques
 	return out, nil
 }
 
-func (c *userServiceClient) DeleteRole(ctx context.Context, in *DeleteRoleRequest, opts ...grpc.CallOption) (*DeleteRoleResponse, error) {
+func (c *userServiceClient) DeleteRole(ctx context.Context, in *DeleteRoleRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeleteRoleResponse)
+	out := new(StatusResponse)
 	err := c.cc.Invoke(ctx, UserService_DeleteRole_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -197,9 +197,9 @@ func (c *userServiceClient) AssignRoleToUser(ctx context.Context, in *AssignRole
 	return out, nil
 }
 
-func (c *userServiceClient) RemoveRoleFromUser(ctx context.Context, in *RemoveRoleRequest, opts ...grpc.CallOption) (*RemoveRoleResponse, error) {
+func (c *userServiceClient) RemoveRoleFromUser(ctx context.Context, in *RemoveRoleRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RemoveRoleResponse)
+	out := new(StatusResponse)
 	err := c.cc.Invoke(ctx, UserService_RemoveRoleFromUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -222,7 +222,7 @@ func (c *userServiceClient) ListUserRoles(ctx context.Context, in *ListUserRoles
 // for forward compatibility
 type UserServiceServer interface {
 	CreateUser(context.Context, *CreateUserRequest) (*User, error)
-	GetUserByIdentifier(context.Context, *GetUserByIdentifierRequest) (*GetUserByIdentifierResponse, error)
+	GetUserByIdentifier(context.Context, *GetUserByIdentifierRequest) (*LoginResponse, error)
 	GetUserById(context.Context, *GetUserByIdRequest) (*User, error)
 	UpdateUser(context.Context, *UpdateUserRequest) (*User, error)
 	ListUsers(context.Context, *ListUsersRequest) (*UserList, error)
@@ -232,11 +232,11 @@ type UserServiceServer interface {
 	CreateRole(context.Context, *CreateRoleRequest) (*RoleType, error)
 	GetRoleById(context.Context, *GetRoleByIdRequest) (*RoleType, error)
 	UpdateRole(context.Context, *UpdateRoleRequest) (*RoleType, error)
-	DeleteRole(context.Context, *DeleteRoleRequest) (*DeleteRoleResponse, error)
+	DeleteRole(context.Context, *DeleteRoleRequest) (*StatusResponse, error)
 	ListRoles(context.Context, *ListRolesRequest) (*RoleTypeList, error)
 	// User Roles CRUD (Admin tomonidan)
 	AssignRoleToUser(context.Context, *AssignRoleRequest) (*UserRole, error)
-	RemoveRoleFromUser(context.Context, *RemoveRoleRequest) (*RemoveRoleResponse, error)
+	RemoveRoleFromUser(context.Context, *RemoveRoleRequest) (*StatusResponse, error)
 	ListUserRoles(context.Context, *ListUserRolesRequest) (*UserRoleList, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
@@ -248,7 +248,7 @@ type UnimplementedUserServiceServer struct {
 func (UnimplementedUserServiceServer) CreateUser(context.Context, *CreateUserRequest) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
-func (UnimplementedUserServiceServer) GetUserByIdentifier(context.Context, *GetUserByIdentifierRequest) (*GetUserByIdentifierResponse, error) {
+func (UnimplementedUserServiceServer) GetUserByIdentifier(context.Context, *GetUserByIdentifierRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserByIdentifier not implemented")
 }
 func (UnimplementedUserServiceServer) GetUserById(context.Context, *GetUserByIdRequest) (*User, error) {
@@ -275,7 +275,7 @@ func (UnimplementedUserServiceServer) GetRoleById(context.Context, *GetRoleByIdR
 func (UnimplementedUserServiceServer) UpdateRole(context.Context, *UpdateRoleRequest) (*RoleType, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateRole not implemented")
 }
-func (UnimplementedUserServiceServer) DeleteRole(context.Context, *DeleteRoleRequest) (*DeleteRoleResponse, error) {
+func (UnimplementedUserServiceServer) DeleteRole(context.Context, *DeleteRoleRequest) (*StatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteRole not implemented")
 }
 func (UnimplementedUserServiceServer) ListRoles(context.Context, *ListRolesRequest) (*RoleTypeList, error) {
@@ -284,7 +284,7 @@ func (UnimplementedUserServiceServer) ListRoles(context.Context, *ListRolesReque
 func (UnimplementedUserServiceServer) AssignRoleToUser(context.Context, *AssignRoleRequest) (*UserRole, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AssignRoleToUser not implemented")
 }
-func (UnimplementedUserServiceServer) RemoveRoleFromUser(context.Context, *RemoveRoleRequest) (*RemoveRoleResponse, error) {
+func (UnimplementedUserServiceServer) RemoveRoleFromUser(context.Context, *RemoveRoleRequest) (*StatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveRoleFromUser not implemented")
 }
 func (UnimplementedUserServiceServer) ListUserRoles(context.Context, *ListUserRolesRequest) (*UserRoleList, error) {
@@ -648,6 +648,7 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 const (
 	UserSessionService_CreateSession_FullMethodName     = "/UserSessionService/CreateSession"
 	UserSessionService_GetSessionByToken_FullMethodName = "/UserSessionService/GetSessionByToken"
+	UserSessionService_DeleteSession_FullMethodName     = "/UserSessionService/DeleteSession"
 )
 
 // UserSessionServiceClient is the client API for UserSessionService service.
@@ -656,6 +657,7 @@ const (
 type UserSessionServiceClient interface {
 	CreateSession(ctx context.Context, in *CreateSessionRequest, opts ...grpc.CallOption) (*UserSession, error)
 	GetSessionByToken(ctx context.Context, in *GetSessionByTokenRequest, opts ...grpc.CallOption) (*UserSession, error)
+	DeleteSession(ctx context.Context, in *DeleteSessionRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 }
 
 type userSessionServiceClient struct {
@@ -686,12 +688,23 @@ func (c *userSessionServiceClient) GetSessionByToken(ctx context.Context, in *Ge
 	return out, nil
 }
 
+func (c *userSessionServiceClient) DeleteSession(ctx context.Context, in *DeleteSessionRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StatusResponse)
+	err := c.cc.Invoke(ctx, UserSessionService_DeleteSession_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserSessionServiceServer is the server API for UserSessionService service.
 // All implementations must embed UnimplementedUserSessionServiceServer
 // for forward compatibility
 type UserSessionServiceServer interface {
 	CreateSession(context.Context, *CreateSessionRequest) (*UserSession, error)
 	GetSessionByToken(context.Context, *GetSessionByTokenRequest) (*UserSession, error)
+	DeleteSession(context.Context, *DeleteSessionRequest) (*StatusResponse, error)
 	mustEmbedUnimplementedUserSessionServiceServer()
 }
 
@@ -704,6 +717,9 @@ func (UnimplementedUserSessionServiceServer) CreateSession(context.Context, *Cre
 }
 func (UnimplementedUserSessionServiceServer) GetSessionByToken(context.Context, *GetSessionByTokenRequest) (*UserSession, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSessionByToken not implemented")
+}
+func (UnimplementedUserSessionServiceServer) DeleteSession(context.Context, *DeleteSessionRequest) (*StatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteSession not implemented")
 }
 func (UnimplementedUserSessionServiceServer) mustEmbedUnimplementedUserSessionServiceServer() {}
 
@@ -754,6 +770,24 @@ func _UserSessionService_GetSessionByToken_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserSessionService_DeleteSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteSessionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserSessionServiceServer).DeleteSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserSessionService_DeleteSession_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserSessionServiceServer).DeleteSession(ctx, req.(*DeleteSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserSessionService_ServiceDesc is the grpc.ServiceDesc for UserSessionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -768,6 +802,10 @@ var UserSessionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSessionByToken",
 			Handler:    _UserSessionService_GetSessionByToken_Handler,
+		},
+		{
+			MethodName: "DeleteSession",
+			Handler:    _UserSessionService_DeleteSession_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
